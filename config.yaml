@@ -877,7 +877,7 @@ params:
   # Algolia Search
   # For more information: https://www.algolia.com
   algoliaSearch:
-    enable: true
+    enable: false
     hits:
       perPage: 10
 
