@@ -47,7 +47,7 @@ markup:
     # 更多的样式：https://xyproto.github.io/splash/docs/all.html
     # Highlight style: monokai | emacs | api | dracula | friendly
     # More: https://xyproto.github.io/splash/docs/all.html 
-    style: "monokai"
+    style: "github"
   tableOfContents:
     # 开始/结束标题级别：1-6
     # Heading title level of start or end: 1-6
@@ -301,7 +301,7 @@ params:
     # 开启自动换行显示
     # If true, all words will placed on next lines 
     # if header width longer then sidebar width.
-    wrap: false
+    wrap: true
     # 自动展开子列表
     # If true, all level of TOC in a post will be displayed, 
     # rather than the activated part of it.
@@ -387,7 +387,7 @@ params:
   # 将文章的描述内容用于首页展示（暂时未实现）
   # Automatically excerpt description in homepage 
   # as preamble text (not implemented by now).
-  excerptDesc: true
+  excerptDesc: false
 
   # 是否显示阅读更多按钮
   # Read more button
@@ -423,7 +423,7 @@ params:
     # 是否开启捐赠按钮，开启后将在每个文章页面底部显示
     # If true, a donate button will be displayed 
     # in every article by default.
-    enable: true
+    enable: false
     # 是否开启捐赠方式的动画效果
     # If true, the donate type title will with animation.
     animation: true
@@ -721,7 +721,7 @@ params:
   comments:
     # 开启评论组件
     # If true, will show comment component in post end.
-    enable: true   
+    enable: false   
     # 设置默认使用的评论插件
     # 可选值：livere | waline | utterances | artalk | giscus
     # Choose a comment system to be displayed by default.
@@ -877,7 +877,7 @@ params:
   # Algolia Search
   # For more information: https://www.algolia.com
   algoliaSearch:
-    enable: false
+    enable: true
     hits:
       perPage: 10
 

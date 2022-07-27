@@ -1073,7 +1073,7 @@ kbd {
   }
 }
 
-.pagination .page-number.current {
+.algolia-pagination .current .page-number, .pagination .page-number.current {
   background: #ccc;
   border-color: #ccc;
   color: var(--content-bg-color);
@@ -2071,7 +2071,6 @@ header.header {
   line-height: 1.8;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .post-toc .nav .nav-child {
@@ -3376,6 +3375,43 @@ ul.breadcrumb li:last-child {
 .search-popup p.search-result {
   border-bottom: 1px dashed #ccc;
   padding: 5px 0;
+}
+
+.search-input-container {
+  flex-grow: 1;
+}
+
+.search-input-container form {
+  padding: 2px;
+}
+
+.search-stats {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-stats img {
+  height: 1em;
+  margin: 0;
+}
+
+.algolia-pagination {
+  margin: 40px 0;
+  opacity: 1;
+  padding: 0;
+}
+
+.algolia-pagination .pagination-item {
+  display: inline-block;
+}
+
+.algolia-pagination .current .page-number {
+  cursor: default;
+}
+
+.algolia-pagination .disabled-item {
+  visibility: hidden;
 }
 
 .search-popup .search-input-container {
