@@ -18,7 +18,7 @@ baseURL: https://hongui.github.io/
 title: 低头沉思
 # 主题名称
 # Theme name
-theme: hugo-theme-next
+theme: hugo-theme-stack
 # 站点默认的语言和代码
 # Default laguage & code for website
 defaultContentLanguage: zh-cn
@@ -87,12 +87,12 @@ menus:
     - identifier: archives
       name: 归档
       pageref: /posts
-      pre: archive
+      pre: archives
       weight: 3
     - identifier: commonweal
       name: 公益 404
       url: /404.html
-      pre: heartbeat
+      pre: infinity
       weight: 4
 
 #-----------------------------------------
@@ -106,10 +106,9 @@ params:
   mainSections: ["posts"]
   # 年，月，日及时间的格式化样式
   # Format style for year,month,date & time
-  yearFormat: "2006"
-  monthFormat: "01-02"
-  dateFormat: "2006-01-02"
-  timeFormat: "2006-01-02T15:04:05-07:00"
+  dateFormat:
+    published: "2006/01/02 03:04"
+  
 
   # 页面模式
   # Schemes
@@ -224,7 +223,7 @@ params:
   avatar:
     # 设置显示头像的相对路径
     # Replace the default image and set the url here.
-    url: /imgs/hugo_next_avatar.png
+    url: /images/logo.png
     # 开启头像的圆形显示效果
     # If true, the avatar will be displayed in circle.
     rounded: true
