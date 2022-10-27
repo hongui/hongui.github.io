@@ -65,8 +65,8 @@ markup:
     # 开始/结束标题级别：1-6 (建议从2开始)
     # Heading title level of start or end: 1-6
     # Recommand start at 2
-    startLevel: 3
-    endLevel: 3
+    startLevel: 2
+    endLevel: 4
 
 # 站点文章导航文件
 # Site map of all articles
@@ -132,16 +132,21 @@ menus:
       pageref: /
       pre: home
       weight: 1
-    - identifier: about
-      name: 关于
-      pageref: /about.html
-      pre: user
-      weight: 2
     - identifier: archives
       name: 归档
       pageref: /archives
       pre: archives
+      weight: 2
+    - identifier: tags
+      name: 标签
+      pageref: /tags
+      pre: tags
       weight: 3
+    - identifier: about
+      name: 关于
+      pageref: /about.html
+      pre: user
+      weight: 4
 
 #-----------------------------------------
 # Hugo NexT 主题参数配置
@@ -155,16 +160,16 @@ params:
   # 年，月，日及时间的格式化样式
   # Format style for year,month,date & time
   yearFormat: "2006"
-  monthFormat: "01-02"
-  dateFormat: "2006-01-02"
-  timeFormat: "2006-01-02T15:04:05-07:00"
+  monthFormat: "01/02"
+  dateFormat: "2006/01/02"
+  timeFormat: "2006/01/02T15:04:05-07:00"
 
   # 页面模式
   # Schemes
   #scheme: Muse
   #scheme: Mist
   #scheme: Pisces
-  scheme: Pisces
+  scheme: Mist
 
   # 开启暗模式
   # Dark Mode
@@ -232,7 +237,7 @@ params:
   # Enable / Disable menu icons & animation / item badges.
   menuSets:
     icons: true
-    transition: true
+    transition: false
     badges: true
 
 
@@ -297,7 +302,7 @@ params:
       # 组件类型，可选值为： 51la, busuanzi
       # 使用51la时需要注册账号：https://invite.51.la/1NUfGTS1?target=V6
       # Plguin value is: 51la, busuzazi
-      plugin: busuanzi
+      plugin: 51la
 
   # 社交链接地址
   # 用法： `Key: 名称 || 链接地址 || 图标`
@@ -470,7 +475,7 @@ params:
       anotherDay: true
     categories: true
     wordCount: true
-    readTime: true
+    readTime: false
 
   # 文章底部的设置
   # Post footer settings
@@ -916,7 +921,7 @@ params:
     # 更多信息请参考：https://invite.51.la/1NUfGTS1?target=V6
     # 51La Analytics
     # See: https://invite.51.la/1NUfGTS1?target=V6 
-    #laId: #<anaytics_id> 
+    laId: JrJFibzvtRuObfi1
     # 百度统计
     # Baidu Analytics
     #baidu: #<anaytics_id>
@@ -926,10 +931,10 @@ params:
     # 不蒜子统计
   # Show Views / Visitors of the website / page with busuanzi.
   # For more information: http://ibruce.info/2015/04/04/busuanzi/
-  busuanzi:
-    visitorsIcon: fa fa-user
-    viewsIcon: fa fa-eye
-    postViews: true
+  # busuanzi:
+  #   visitorsIcon: fa fa-user
+  #   viewsIcon: fa fa-eye
+  #   postViews: true
 
 
   # ---------------------------------------------------------------
@@ -1044,7 +1049,7 @@ params:
   # Use Animate.css to animate everything.
   # For more information: https://animate.style
   motion:
-    enable: true
+    enable: false
     async: true
     transition:
       # All available transition variants: https://theme-next.js.org/animate/

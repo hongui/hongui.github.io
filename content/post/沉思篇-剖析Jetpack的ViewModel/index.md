@@ -26,7 +26,7 @@ url: post/沉思篇-剖析Jetpack的LiveData.html
 # ViewModel的设计目标
 ViewModel的基本功能就是管理UI的数据。其实，从职责上来说，这又是对Activity和Fragment的一次功能拆分。以前存储在它们内部的数据，需要它们自己处理创建，更新，存储，恢复的所有过程，同时它们还要处理UI的数据绑定，更新，动画等操作。职责的多元化就容易出现不好定位和调试的问题。另外，Activity和Fragment作为UI的承载者，很多时候需要共享数据和复用功能。而UI的差异让复用的粒度划分很难把控，容易写出扩展性差的代码。基于这些痛点，ViewModel被设计出来了。
 同时ViewModel还将保存数据的功能强化了——它将设备配置变更后数据保存和恢复自动化了，在UI生命周期内都能保证数据的有效性，这大大减少了样板代码的编写，提高了开发效率。
-
+<!--more-->
 # ViewModel的架构设计
 *** ViewModel用了两种粒度划分来完成数据管理功能。*** 第一层是对ViewModel自身存储数据的管理。目标就是完成ViewModel的创建，对应的抽象实体是`ViewModelProvider.Factory`。第二层则是对已存在的ViewModel组的管理，目标就是保证意外情况下ViewModel的有效性，对应的抽象实体是ViewModelStore。当然，这些都只是概念上的抽象，还需要一个粘合剂把它们的抽象层级体现出来，这就是ViewModelProvider。这三个主体类共同搭建了ViewModel的体系框架。剩下的类都是对这三个概念的补充和完善。接下来我将分别以这些抽象为主线，逐层分析它们的实现逻辑。
 
