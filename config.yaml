@@ -700,8 +700,7 @@ params:
   # 谷歌站点验证
   # Google Webmaster tools verification.
   # See: https://developers.google.com/search
-  googleSiteVerification: #<verify_code>
-
+  googleSiteVerification: 8oT15AWGndmqRq4Fwl9yYJ5ggeUwueCmahqPg3vrVEo
   # 微软 Bing 站验证
   # Bing Webmaster tools verification.
   # See: https://www.bing.com/webmasters
