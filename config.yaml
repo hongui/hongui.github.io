@@ -25,7 +25,7 @@ defaultContentLanguage: zh-cn
 languageCode: zh-CN
 # 是否包含中文，日语，韩文
 # Whether contains Chinese, Japanese and Korean
-hasCJKLanguage: false
+hasCJKLanguage: true
 # 每页显示文章数量
 # Display items per page
 paginate: 10
@@ -48,18 +48,18 @@ markup:
     # # Highlight style: monokai | emacs | api | dracula | friendly
     # # More: https://xyproto.github.io/splash/docs/all.html 
     # style: "monokai"
-    anchorLineNos: true
+    anchorLineNos: false
     codeFences: true
     guessSyntax: true
     hl_Lines: ""
     hl_inline: false
     lineAnchors: ""
     lineNoStart: 1
-    lineNos: false
+    lineNos: true
     lineNumbersInTable: false
     noClasses: true
     noHl: false
-    style: monokai
+    style: emacs
     tabWidth: 2
   tableOfContents:
     # 开始/结束标题级别：1-6 (建议从2开始)
@@ -135,7 +135,7 @@ menus:
     - identifier: archives
       name: 归档
       pageref: /archives
-      pre: archives
+      pre: archive
       weight: 2
     - identifier: tags
       name: 标签
@@ -169,7 +169,7 @@ params:
   #scheme: Muse
   #scheme: Mist
   #scheme: Pisces
-  scheme: Mist
+  scheme: Gemini
 
   # 开启暗模式
   # Dark Mode
@@ -237,7 +237,7 @@ params:
   # Enable / Disable menu icons & animation / item badges.
   menuSets:
     icons: true
-    transition: false
+    transition: true
     badges: true
 
 
@@ -257,7 +257,7 @@ params:
     # Manual define the sidebar width. If commented, will be default for:
     # Muse | Mist: 320
     # Pisces | Gemini: 240
-    width: 256
+    width: 240
 
     # 侧边栏的显示方式，可选值：
     #  - post    默认在文章页面展开显示
@@ -270,14 +270,14 @@ params:
     #  - always  expand for all pages automatically.
     #  - hide    expand only when click on the sidebar toggle icon.
     #  - remove  totally remove sidebar including sidebar toggle.
-    display: post
+    display: hide
 
     # 侧边栏内部填充像素大小
     # Sidebar padding in pixels.
-    padding: 18
+    padding: 16
     # 侧边栏与顶部菜单栏的偏移像素大小（仅作用于 Pisces | Gemini 页面模式）
     # Sidebar offset from top menubar in pixels (only for Pisces | Gemini).
-    offset: 12
+    offset: 8
 
   # 侧边栏头像
   # Sidebar Avatar
@@ -331,7 +331,7 @@ params:
     enable: true
     # 只显示图标
     # Only show icon
-    iconsOnly: true
+    iconsOnly: false
     # 开启动画效果
     # Enable animation
     transition: true
@@ -369,7 +369,7 @@ params:
     # 开启自动换行显示
     # If true, all words will placed on next lines 
     # if header width longer then sidebar width.
-    wrap: true
+    wrap: false
     # 自动展开子列表
     # If true, all level of TOC in a post will be displayed, 
     # rather than the activated part of it.
@@ -458,7 +458,7 @@ params:
   # 将文章的描述内容用于首页展示（暂时未实现）
   # Automatically excerpt description in homepage 
   # as preamble text (not implemented by now).
-  excerptDesc: false
+  excerptDesc: true
 
   # 是否显示阅读更多按钮
   # Read more button
@@ -1048,7 +1048,7 @@ params:
   # Use Animate.css to animate everything.
   # For more information: https://animate.style
   motion:
-    enable: false
+    enable: true
     async: true
     transition:
       # All available transition variants: https://theme-next.js.org/animate/
