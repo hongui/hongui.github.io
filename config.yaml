@@ -147,7 +147,7 @@ menus:
       pageref: /about.html
       pre: user
       weight: 4
-
+      
 #-----------------------------------------
 # Hugo NexT 主题参数配置
 # Configure Settings for Hugo NexT theme
@@ -212,7 +212,7 @@ params:
     license: by-nc-sa
     # 可选配置： big | small
     # Available values: big | small
-    size: big
+    size: small
     # 侧边栏显示
     # Show in sidebar
     sidebar: true
@@ -270,7 +270,7 @@ params:
     #  - always  expand for all pages automatically.
     #  - hide    expand only when click on the sidebar toggle icon.
     #  - remove  totally remove sidebar including sidebar toggle.
-    display: hide
+    display: always
 
     # 侧边栏内部填充像素大小
     # Sidebar padding in pixels.
