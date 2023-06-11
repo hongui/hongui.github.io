@@ -1,6 +1,6 @@
 ---
 title: "Android-OpenGLES学习-画个颜色"
-description: ""Android-OpenGLES学习-画个颜色"
+description: "Android-OpenGLES学习-画个颜色"
 
 date: 2023-05-09T22:14:38+08:00
 lastmod: 2023-05-09T22:14:38+08:00
@@ -9,11 +9,11 @@ publishDate: 2023-05-09T22:14:38+08:00
 author: hongui
 
 categories:
- - OpenGL ES
+ - "OpenGL ES"
 tags:
  - 学习指南
  - Android
- - OpenGL ES
+ - "OpenGL ES"
 
 toc: true
 draft: false
