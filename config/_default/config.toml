@@ -3,6 +3,7 @@
 # https://jpanther.github.io/congo/docs/getting-started/
 
 baseURL = "https://bravebuffalo.cc/"
+theme = "congo"
 defaultContentLanguage = "zh-CN"
 
 enableRobotsTXT = true
@@ -10,4 +11,4 @@ paginate = 10
 summaryLength = 0
 
 [outputs]
-  home = ["HTML", "RSS", "JSON"]
+  home = ["HTML"]
