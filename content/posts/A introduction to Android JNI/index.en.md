@@ -10,9 +10,9 @@ publishDate: 2021-09-12T21:34:45+08:00
 author: hongui
 originLink: https://mainroad-demo.netlify.app/post/basic-elements/
 
-categories.
+categories:
  - C/C++
-tags.
+tags:
  - Android
  - JNI
  - C/C++
