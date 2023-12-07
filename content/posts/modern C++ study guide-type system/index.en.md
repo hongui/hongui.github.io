@@ -9,9 +9,9 @@ publishDate: 2022-06-26T11:11:59+08:00
 
 author: hongui
 
-categories.
+categories:
  - C++
-tags.
+tags:
  - Study guides
  - C++
 
