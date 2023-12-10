@@ -9,11 +9,11 @@ publishDate: 2023-05-09T22:14:38+08:00
 author: hongui
 
 categories:
- - "OpenGL ES"
+ - OpenGLES
 tags:
  - 学习指南
  - Android
- - "OpenGL ES"
+ - OpenGLES
 
 toc: true
 draft: false

@@ -1,5 +1,5 @@
 ---
-title: "Android-NDk开发——基本概念"
+title: "Android-NDK开发——基本概念"
 description: "JNI开发概念"
 isCJKLanguage: false
 
@@ -108,7 +108,7 @@ CMake的配置信息都是写在名为`CMakeLists.txt`的文件中。如前面�
    最简单的CMake项目信息需要包括至少三个东西
 1）、支持的最低CMake版本
 ```cmake
-cmake_minimum_required(VERSION 3.18。1)
+cmake_minimum_required(VERSION 3.18.1)
 ```
 2）、项目名称
 
