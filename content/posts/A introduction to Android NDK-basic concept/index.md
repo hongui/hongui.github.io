@@ -1,6 +1,6 @@
 ---
-title: "Introduction to Android NDK-basic concepts"
-description: "Introduction to Android NDK-basic concepts"
+title: "Android-NDK开发——基本概念"
+description: "JNI开发概念"
 isCJKLanguage: false
 
 lastmod: 2022-03-06T11:30:40+08:00
@@ -18,20 +18,20 @@ tags:
 
 toc: true
 draft: false
-url: post/Introduction to Android NDK-basic concepts.html
+url: post/Android-NDk开发——基本概念.html
 ---
 
-Sometimes it is necessary to use libraries written in C/C++ for security, performance, and code sharing considerations during the development. Although with the support of modern tool chains, the difficulty of this work has been greatly reduced, after all, everything is difficult at the beginning, and beginners often still encounter many unpredictable problems. This article is a simple guide written based on this background. I hope it will be helpful to readers who have just started writing C/C++ libraries. At the same time, in order to reduce cognitive gaps as much as possible, this article will try to start with the simplest function and gradually add tool chains until the final function is achieved, truly knowing what is happening and why.
+在Android开发中,有时候出于安全，性能，代码共用的考虑，需要使用C/C++编写的库。虽然在现代化工具链的支持下，这个工作的难度已经大大降低，但是毕竟万事开头难，初学者往往还是会遇到很多不可预测的问题。本篇就是基于此背景下写的一份简陋指南，希望能对刚开始编写C/C++库的读者有所帮助。同时为了尽可能减少认知断层，本篇将试着从一个最简单的功能开始，逐步添加工具链，直到实现最终功能，真正做到知其然且之所以然。
+<!--more-->
+# 目标
+本篇的目标很简单，就是能在Android应用中调用到C/C++的函数——接收两个整型值，返回两者相加后的值，暂定这个函数为`plus`。
 
-# Target
-The goal of this article is very simple, which is to call C/C++ functions in Android applications - receiving two integer values ​​and returning the value after adding the two. This function is tentatively named `plus`.
+# 从C++源文件开始
+为了从我们最熟悉的地方开始,我们先不用复杂工具,先从最原始的C++源文件开始.
 
-# Begin with the C++ source file
-In order to start from where we are most familiar, we'll start with the original C++ source files without the use of sophisticated tools.
+打开你喜欢的任何一个文本编辑器，VS Code，Notpad++，记事本都行，新建一个文本文件，并另存为`math.cpp`。接下来,就可以在这个文件中编写代码了.
 
-Open any text editor you like, VS Code, Notpad++, Notepad, create a new text file and save it as `math.cpp`. Next, you can write code in this file.
-
-Our goal, as stated earlier, is to implement a `plus` function that takes two integer values and returns the sum of the two, so it might look like below
+前面我们的目标已经说得很清楚,实现个`plus`函数，接收两个整型值，返回两者之和，所以它可能是下面这样
 
 ```c++
 int plus(int left,int right)
@@ -40,129 +40,132 @@ int plus(int left,int right)
 }
 ```
 
-Out work is done, isn't it simple.
+我们的源文件就这样完成了，是不是很简单。
 
-But just having the source file is not enough, because this is just for humans, machines can't read it. So we need the first tool - a compiler. A compiler helps us to convert what is human-readable into something that is machine-readable.
+但是仅仅有源文件是不够的，因为这个只是给人看的，机器看不懂。所以我们就需要第一个工具——编译器。编译器能帮我们把人看得懂的转化成机器也能看得懂的东西。
 
-# The compiler
-The compiler is a complex project, but the two main functions are as follows
-1. to understand the content of the source file (human-readable) - to check for syntax errors in the source file
-2. to understand the content of the binary (machine-readable) - to generate binary machine code.
+# 编译器
 
-Around these two main functions, the compiler needs to complete a lot of work, especially function 2. Based on this difficulty, compilers are divided into a variety of common compilers, such as VS for Windows platform, G++ for Linux platform, Apple's Clang, and for Android, the situation is slightly different, the previous compilers are running on a specific system, compiled programs usually can only run on the corresponding system. The compiled program usually only runs on the corresponding system. Taking my current machine as an example, I'm writing C++ code on Deepin right now, but the goal is to have the code run on an Android phone, two different platforms. More pessimistically, so far, there is no compiler that will run on a phone. Does that mean we can't run C++ code on a phone? Of course not, because there is cross-compilation.
+编译器是个复杂工程，但是都是服务于两个基本功能
+1. 理解源文件的内容（人能看懂的）——检查出源文件中的语法错误
+2. 理解二进制的内容（机器能看懂的）——生成二进制的机器码。
 
-Cross-compilation is the technique of generating code on one platform into executable objects on another. The biggest difference between cross-compilation and normal compilation is in linking. Because the general link directly to the system library to find the appropriate library files, while cross-compilation can not, because the current platform is not the final platform to run the code. So cross-compile also need to have the common libraries of the target platform. Of course, Google has prepared all these for us, called NDK.
+基于这两个朴素的功能，编译器却是挠断了头。难点在于功能2。基于这个难点编译器分成了很多种，常见的像Windows平台的VS，Linux平台的G++,Apple的Clang。而对于Android来说，情况略有不同，前面这些编译器都是运行在特定系统上的，编译出来的程序通常也只能运行在对应的系统上。以我现在的机器为例，我现在是在Deepin上写的C++代码，但是我们的目标是让代码跑在Android手机上，是两个不同的平台。更悲观的是，目前为止，还没有一款可以在手机上运行的编译器。那我们是不是就不能在手机上运行C++代码了？当然不是，因为有交叉编译。
+
+交叉编译就是在一个平台上将代码生成另一个平台可执行对象的技术。它和普通编译最大的不同是在链接上。因为一般的链接直接可以去系统库找到合适的库文件，而交叉编译不行，因为当前的平台不是最终运行代码的平台。所以交叉编译还需要有目标平台的常用库。当然，这些Google都替我们准备好了，称为NDK。
 
 # NDK
 
-NDK full name is Native Development Kit, there are many tools, compilers, linkers, standard libraries, shared libraries. These are all essential parts of cross-compilation. In order to understand the convenience, we first take a look at its file structure. Take the version on my machine as an example - `/home/Andy/Android/Sdk/ndk/21.4.7075529` (the default location on Windows is `c:\Users\xxx\AppData\Local\Android\\). Sdk\`). The NDK is stored in the Sdk directory, named `ndk`, and the version number is used as the root directory for that version, as in the example, the version of NDK I installed is `21.4.7075529`. The example is also the value of the `ANDROID_NDK` environment variable. In other words, before determining the environment variable, we need to determine the version of the NDK to use, and the path value is taken to the version number directory.
+NDK全称是Native Development Kit，里面有很多工具，编译器，链接器，标准库，共享库。这些都是交叉编译必不可少的部分。为了理解方便，我们首先来看看它的文件结构。以我这台机器上的版本为例——`/home/Andy/Android/Sdk/ndk/21.4.7075529`（Windows上默认位置则是`c:\Users\xxx\AppData\Local\Android\Sdk\`）。 NDK就保存在Sdk目录下，以`ndk`命名，并且使用版本号作为该版本的根目录，如示例中，我安装的NDK版本就是`21.4.7075529`。同时该示例还是`ANDROID_NDK`这个环境变量的值。也就是说，在确定环境变量前，我们需要先确定选用的NDK版本，并且路径的值取到版本号目录。
 
-Knowing where it is stored, we next need to recognize two important directories
+了解了它的存储位置，接下来我们需要认识两个重要的目录
 
-- `build/cmake/`, a folder that we'll expand on later.
-- `toolchains/llvm/prebuild/linux-x86_64`, the last `linux-x86_64` has a different name depending on the platform, e.g. it starts with Windows on Windows platforms, but you can't go wrong with it because it's just one folder under the path and it's preceded by the same one. There are compilers, linkers, libraries, headers and so on. For example, the compilers are in the `bin` directory in this path, and they all end in `clang` and `clang++`, like `aarch64-linux-android21-clang++`.
+- `build/cmake/`，这个文件夹，稍后我们再展开。
+- `toolchains/llvm/prebuild/linux-x86_64`，最后的`linux-x86_64`根据平台不同，名称也不同，如Windows平台上就是以Windows开头，但是一般不会找错，因为这个路径下就一个文件夹，并且前面都是一样的。这里有我们心心念念的编译器，链接器，库，文件头等。如编译器就存在这个路径下的`bin`目录里，它们都是以`clang`和`clang++`结尾的，如`aarch64-linux-android21-clang++`
 
-1. `aarch64` means that this compiler can generate binaries for use on `arm64` architecture machines, the other equivalents are `armv7a`, `x86_64`, etc. Different platforms use matching compilers. It is the target platform that is referred to in cross-compilation.
+1. `aarch64`代表着这个编译器能生成用在`arm64`架构机器上的二进制文件，其他对应的还有`armv7a`，`x86_64`等。不同的平台要使用相匹配的编译器。它就是交叉编译中所说的目标平台。
 
-2. `linux` means that we perform the compilation operation on a `linux` machine, which is the host platform in cross-compilation.
+2. `linux`代表我们执行编译这个操作发生在`linux`机器上，它就是交叉编译中所说的主机平台。
 
-3. `android21` is obviously the target system version.
+3. `android21`这个显然就是目标系统版本了
 
-4. `clang++` means that it is a C++ compiler, and the corresponding C compiler is `clang`.
+4. `clang++`代表它是个C++编译器，对应的C编译器是`clang`。
 
-As you can see, for Android, different hosts, different instruction sets, different Android versions, all correspond to a compiler.
-After learning so much, it's finally time to get excited about the human nature. Next, let's compile the C++ file in front of us.
+可以看到，对于Android来说，不同的主机，不同的指令集，不同的Android版本，都对应着一个编译器。
+了解了这么多，终于到激动人性的时刻啦，接下来，我们来编译一下前面的C++文件看看。
 
-# Compile
+# 编译
 
-Looking at the parameters via `aarch64-linux-android21-clang++ --help`, you'll see that it has a lot of parameters and options, and now we just want to verify that our C++ source file doesn't have any syntax errors, so we'll just ignore all that complexity, and just a `aarch64-linux-android21- clang++ -c math.cpp`.
+通过`aarch64-linux-android21-clang++ --help`查看参数，会发现它有很多参数和选项，现在我们只想验证下我们的C++源文件有没有语法错误，所以就不管那些复杂的东西，直接一个`aarch64-linux-android21-clang++ -c math.cpp`执行编译。
 
-After the command is executed, if all goes well, a `math.o` object file will be generated in the same directory as `math.cpp`, which means that our source code has no syntax errors and we can proceed to the next step of linking.
+命令执行完后，假如一切顺利，就会在`math.cpp`相同目录下生成`math.o`对象文件，说明我们的源码没有语法错误，可进行到下一步的链接。
 
-But before that, a quick interruption. Often our projects contain many source files, referencing some third-party libraries, and each time we compile them manually, linking is obviously inefficient and error-prone. Nowadays, when tools are mature, we should try to use mature tools and focus on our business logic, `CMake` is one such tool.
+不过，在此之前，先打断一下。通常我们的项目会包含很多源文件，引用一些第三方库，每次都用手工的形式编译，链接显然是低效且容易出错的。在工具已经很成熟的现在，我们应该尽量使用成熟的工具，将重心放在我们的业务逻辑上来，`CMake`就是这样的一个工具。
 
 # CMake
-CMake is a cross-platform project builder. How to understand it? When writing C++ code, sometimes you need to refer to file headers in other directories, but in the compilation stage, the compiler doesn't know where to look for the headers, so you need a configuration to tell the compiler where to look for the headers. Furthermore, source code distributed in different directories needs to be packaged into different libraries according to certain needs. Or, if the project references third-party libraries, you need to tell the linker where to look for the libraries during the linking phase, and all of these are things that need to be configured.
 
-Different systems and different IDEs have different support for these configurations, such as Visual Studio on Windows, which needs to be configured in the project's properties. When developers use the same tools, the problem is not so big. But once involved in the case of multi-platform, multi-IDE, collaborative development will spend a lot of time in the configuration of the CMake is to solve these problems came into being.
+CMake是个跨平台的项目构建工具。怎么理解呢？编写C++代码时，有时候需要引用其他目录的文件头，但是在编译阶段，编译器是不知道该去哪里查找文件头的，所以需要一种配置告诉编译器文件头的查找位置。再者，分布在不同目录的源码，需要根据一定的需求打包成不同的库。又或者，项目中引用了第三方库，需要在链接阶段告诉链接器从哪个位置查找库，种种这些都是需要配置的东西。
 
-CMake configuration information is written in a file called `CMakeLists.txt`. As I mentioned earlier, header file references, source code dependencies, library dependencies, etc., only need to be written once in `CmakeLists.txt`, and can be used seamlessly on all major IDEs on Windows, MacOS, and Linux platforms. For example, I created a CMake project on Visual Studio for Windows, configured the dependencies, and passed it to a coworker. When my colleague develops on MacOS, he can immediately finish compiling, packaging, testing, etc. without any modification. This is the power of CMake cross-platform - simple, efficient, flexible.
+而不同的系统，不同的IDE对于上述配置的支持是不尽相同的，如Windows上的Visual Studio就是需要在项目的属性里面配置。在开发者使用同样的工具时，问题还不是很大。但是一旦涉及到多平台，多IDE的情况，协同开发就会花费大把的时间在配置上。CMake就是为了解决这些问题应运而生的。
 
-# Manage project with CMake
+CMake的配置信息都是写在名为`CMakeLists.txt`的文件中。如前面提到头文件引用，源码依赖，库依赖等等，只需要在`CmakeLists.txt`中写一次，就可以在Windows，MacOS，Linux平台上的主流IDE上无缝使用。如我在Windows的Visual Studio上创建了一个CMake的项目，配置好了依赖信息,传给同事。同事用MacOS开发，他可以在一点不修改的情况下，马上完成编译，打包，测试等工作。这就是CMake跨平台的威力——简洁，高效，灵活。
 
-## Create a CMake project
-We already have `math.cpp` and CMake above, so let's combine them now.
+# 使用CMake管理项目
 
-How do we create a CMake project? There are three steps:
+## 建CMake项目
 
-1. Create a folder
+我们前面已经有了`math.cpp`，又有了CMake，现在就把他们结合一下。
 
-In the example, let's create a folder `math`.
+怎样建立一个CMake项目呢？一共分三步：
 
-2. Create a new `CMakeLists.txt` text file in the new folder. Note that the name of the file cannot be changed.
+1. 建一个文件夹
 
-3. Configure the project information in the new `CMakeLists.txt` file.
-The simplest CMake project needs to include at least three infomation
-1) Minimum CMake version supported
+示例中我们就建一个`math`的文件夹吧。
+
+2. 在新建的文件夹里新建`CMakeLists.txt`文本文件。注意，这里的文件名不能变。
+
+3. 在新建的`CMakeLists.txt`文件里配置项目信息。
+   最简单的CMake项目信息需要包括至少三个东西
+1）、支持的最低CMake版本
 ```cmake
 cmake_minimum_required(VERSION 3.18.1)
 ```
-2) Project name
+2）、项目名称
 
 ```cmake
 project(math)
 ```
 
-3) Product - The product could be executables or libraries. Since we are need a libraries on Android, so the product is a library.
+3）、生成物——生成物可能是可执行文件，也可能是库。因为我们要生成Android上的库，所以这里是的生成物是库。
 
 ```cmake
 add_library(${PROJECT_NAME} SHARED math.cpp)
 ```
 
-After these three steps, the CMake project is built. Let's try compiling the project with CMake in the next step.
+经过这三步，CMake项目就建成了。下一步我们来试试用CMake来编译项目。
 
-## Compile the CMake project
+## 编译CMake项目
 
-Before executing the real compilation, CMake has a preparation phase, in which CMake collects the necessary information and then generates a project that meets the conditions before it can execute the compilation.
+在执行真正的编译前，CMake有个准备阶段，这个阶段CMake会收集必要的信息，然后生成满足条件的工程项目，然后才能执行编译。
 
-What is the necessary information? CMake will collect some information by guessing in order to minimize the complexity.
+那么什么是必要的信息呢？CMake为了尽可能降低复杂性，会自己猜测收集一些信息。
 
-For example, if we perform the generation operation on Windows, CMake will default to Windows as the target platform and generate the VS project by default, so compiling Windows libraries on Windows is almost zero configuration.
+如我们在Windows上执行生成操作，CMake会默认目标平台就是Windows，默认生成VS的工程，所以在Windows上编译Windows上的库就几乎是零配置的。
 
-1. Create a new `build` directory in the `math` directory and switch the working directory to the `build` directory.
+1. 在`math`目录下新建一个`build`的目录，然后把工作目录切换到`build`目录。
    
    ```shell
    cd build
    cmake ..
    ```
    
-After the command is executed, you will find the VS project in the `build` directory, and you can open it directly with VS and compile it without errors. Of course, the faster way is to compile directly with CMake.
+   在命令执行之后，就能在`build`目录下找到VS的工程，可以直接使用VS打开，无错误地完成编译。当然，更快的方法还是直接使用CMake编译.
 
-2. Compile
+2. 使用CMake编译
    
    ```shell
    cmake --build .
    ```
    
-   Note that the preceding `..` represents the parent directory, the `math` directory where the `CMakeLists.txt` file exists, and `. ` represents the current directory, `build`. If both of these steps are executed successfully, we will be able to harvest a library file in the build directory, which may be called `math.dll` on Windows platforms and `math.so` on Linux platforms, but both are dynamic libraries, because that is what we configured in the `CMakelists.txt` file.
+   注意前面的`..`代表父目录，也就是`CMakeLists.txt`文件存在的`math`目录，而`.`则代表当前目录，即`build`这个目录。假如这两步都顺利执行了，我们就能在build目录下收获一个库文件。Windows平台上可能叫`math.dll`，而Linux平台上可能叫`math.so`，但是都是动态库，因为我们在`CMakelists.txt`文件里配置的就是动态库。
 
-From the above process, CMake's workflow is not complicated. But we are using the default configuration, which means that the final generated library can only be used on the compiled platform. To use CMake to compile Android libraries, we need to manually tell CMake some configurations when generating the project, instead of letting CMake guess.
+从上面的流程来看，CMake的工作流程不复杂。但是我们使用的是默认配置，也就是最终生成的库只能用在编译的平台上。要使用CMake编译Android库，我们就需要在生成工程时，手动告诉CMake一些配置，而不是让CMake去猜。
 
-# Cross-compilation of CMake
+# CMake的交叉编译
 
-## Where do the configuration parameters come from?
+## 配置参数从哪来
 
-Although we do not know what is the minimum configuration to complete the cross-compilation, but we can guess.
+虽然我们不知道完成交叉编译的最少配置是什么，但是我们可以猜一下。
 
-First of all, to complete the compilation of the source code, compiler and linker is indispensable, we also know that the Android platform has a special compiler and linker, so at least one configuration should be to tell CMake with which compiler and linker.
+首先要完成源码的编译，编译器和链接器少不了，前面也知道了,Android平台上有专门的编译器和链接器，所以至少有个配置应该是告诉CMake用哪一个编译器和链接器。
 
-Secondly, Android's system version and architecture is also essential, after all, for Android development, this is very important for Android applications.
+其次Android的系统版本和架构也是必不可少的，毕竟对于Android开发来说，这个对于Android应用都很重要。
 
-Can you think of any other parameter, I can't seem to think of any. However, the good news is that Google has done it for us, and that is to use `CMAKE--TOOLCHAIIIN_FILE` directly. This option is provided by CMake, just set the configuration file path to its value, CMake will find the target file through this path, and use the configuration inside the target file instead of its own guessing parameters. The configuration file is `build/camke`, one of the two important folders mentioned earlier, and our configuration file is `android.toolchain.cmake` under that folder.
+还能想到其他参数吗，好像想不到了。不过，好消息是，Google替我们想好了，那就是直接使用`CMAKE——TOOLCHAIIIN_FILE`。这个选项是CMake 提供的，使用的时候把配置文件路径设置为它的值就可以了，CMake会通过这个路径查找到目标文件，使用目标文件里面的配置代替它的自己靠猜的参数。而这个配置文件，就是刚才提到过的两个重要文件夹之一的`build/camke`,我们的配置文件就是该文件夹下面的`android.toolchain.cmake`。
 
-## The CMake of Google
+## Google的CMake配置文件
 
-`android.toolchain.cmake` plays the role of a wrapper that will work together to configure CMake using the parameters provided to it, and the default configuration. In fact, this file is a good source for learning about CMake, and you can learn a lot of CMake tricks. Now, let's not learn CMake-related first, let's see what parameters we have available. In the beginning of the file, Google will be configurable parameters are listed out
+`android.toolchain.cmake`扮演了一个包装器的作用，它会利用提供给它的参数，和默认的配置，共同完成CMake的配置工作。其实这个文件还是个很好的CMake学习资料，可以学到很多CMake的技巧。现在，我们先不学CMake相关的，先来看看我们可用的参数有哪些。在文件的开头，Google就把可配置的参数都列举出来了
 
 ```cmake
 ANDROID_TOOLCHAIN
@@ -177,105 +180,106 @@ ANDROID_ARM_NEON
 ANDROID_DISABLE_FORMAT_STRING_CHECKS
 ANDROID_CCACHE
 ```
-These parameters are not actually CMake parameters; they are converted to real CMake parameters as the configuration file is executed. We can specify the values of these parameters to allow CMake to fulfill different build requirements. If you don't specify any of them, the default values will be used, which may be different for different NDK versions.
 
-Let's focus on the most critical `ANDROID_ABI` and `ANDROID_PLATFORM`. The first one refers to which CPU instruction set the currently built package is running on, the available values are `arneabi-v7a`, `arn64-v8a`, `x86`, `x86_64`, `mips`, `mips64`. The latter one refers to the Android version of the build package. Its value takes two forms, one is the direct `android-[version]` of the form `[version]` which is replaced with the specific system version when used, e.g., `android-23`, which means that the minimum supported system version is Android 23. The other form is the string `latest`. This value is as the word implies, use the latest.
+这些参数其实不是CMake的参数，在配置文件被执行的过程中，这些参数会被转换成真正的CMake参数。我们可以通过指定这些参数的值，让CMake完成不同的构建需求。假如都不指定，则会使用默认值，不同的NDK版本，默认值可能会不一样。
 
-So how do we know which parameter can take which values? There's an easy way: first identify the parameter you want to see in the header of the file, then search globally and look at the `set` and `if` related statements to determine the parameter forms it supports.
+我们来着重看看最关键的`ANDROID_ABI`和`ANDROID_PLATFORM`。前面这个是指当前构建的包运行的CPU指令集是哪一个，可选的值有`arneabi-v7a`，`arn64-v8a`，`x86`，`x86_64`，`mips`，`mips64`。后一个则是指构建包的Android版本。它的值有两种形式，一种就是直接`android-[version]`的形式`[version]`在使用时替换成具体的系统版本，如`android-23`，代表最低支持的系统版本是Android 23。另一种形式是字符串`latest`。这个值就如这个单词的意思一样，用最新的。
 
-## Complete cross-compilation using configuration files
+那么我们怎么知道哪个参数可以取哪些值呢，有个简单方法：先在文件头确定要查看的参数，然后全局搜索，看`set`和`if`相关的语句就能确定它支持的参数形式了。
 
-With that out of the way, let's go back to the original example. Now we have `CMakelists.txt`, we have `math.cpp`, and we have found the configuration file `android.toolchin.cmake` for Android. So how do you combine the three, which brings us to CMake's parameter configuration.
+## 使用配置文件完成交叉编译
 
-In the previous section, we completed the configuration of the project file generation by directly using the following command
+说了那么一大堆，回到最开始的例子上来。现在我们有了`CMakelists.txt`，还有了`math.cpp`，又找到了针对Android的配置文件`android.toolchin.cmake`。那么怎样才能把三者结合起来呢，这就不得不提到CMake的参数配置了。
+
+在前面，我们直接使用
 
 ```shell
 cmake ..
 ```
 
-But it is actually possible to pass parameters, ***CMake's parameters are all key-value pairs that start with `-D` and are separated by whitespace.*** And CMake's default parameters all start with `CMAKE`, so most of the time the parameters are of the form `-DCMAKE_XXX`For example, passing a `toolchain` file to CMake would look like this
+就完成了工程文件的生成配置，但是其实它是可以传递参数的。***CMake的参数都是以`-D`开头，用空白符分割的键值对。***而CMake缺省的参数都是以`CMAKE`为开头的，所以大部分情况下参数的形式都是`-DCMAKE_XXX`这种。如给CMake传递`toolchain`文件的形式就是
 
 ```shell
 cmake -DCMAKE_TOOLCHAIN_FILE=/home/Andy/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake
 ```
 
-The point of this parameter is to tell CMake to use the file specified after `=` to configure CMake's parameters
+这个参数的意思就是告诉CMake，使用`=`后面指定的文件来配置CMake的参数。
 
-However, to complete the cross-compilation, we are missing one more option - `-G`. This option is required for cross-compilation. Because cross-compiling CMake does not know what form of project to generate, this option is needed to specify the type of project to generate. One type of project is the traditional Make project, which is specified as follows.
+然而，完成交叉编译，我们还少一个选项——`-G`。这个选项是交叉编译必需的。因为交叉编译CMake不知道该生成什么形式的工程，所以需要使用这个选项指定生成工程的类型。一种是传统形式的Make工程，指定形式是
 
 ```shell
 cmake -G "Unix Makefiles"
 ```
 
-As you can see, this form is based on the Unix Make project, which uses `make` as the build tool, so after specifying this form, you also need to specify the path to `make` for the project to be compiled successfully. The other Google-recommended way is `Ninja`, which is simpler because you don't need to specify the path to `Ninja` separately, and it is installed in the same directory as CMake by default, so you can reduce the number of passing parameters. `Ninja` is also a build tool, but focuses on speed, so we'll use `Ninja` this time. It's specified like this
+可以看出，这种形式是基于Unix平台下的Make工程的，它使用`make`作为构建工具，所以指定这种形式以后，还需要指定`make`的路径，工程才能顺利完成编译。而另一种Google推荐的方式是`Ninja`，这种方式更简单，因为不需要单独指定`Ninja`的路径，它默认就随CMake安装在同一个目录下，所以可以减少一个传参。`Ninja`也是一种构建工具，但是专注速度，所以我们这一次就使用`Ninja`。它的指定方式是这样的
 
 ```shell
 cmake -GNinja
 ```
 
-Combining the above two parameters gives you the final compilation command
+结合以上两个参数，就可以得到最终的编译命令
 
 ```shell
 cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=/home/Andy/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake ..
 ```
 
-Generate a project and then compile it
+生成工程后再执行编译
 
 ```shell
 cmake --build .
 ```
 
-We've got a dynamic library that will eventually run on Android. The dynamic library compiled with my version of the NDK supports Android version 21, and the instruction set is armeabi-v7a. Of course, based on the previous description, we can pass the desired parameters as we did earlier with the `toolchain` file, e.g., to build the `x86` library with the latest version of Android, you can write something like this
+我们就得到了最终能运行在Android上的动态库了。用我这个NDK版本编译出来的动态库支持的Android版本是21,指令集是armeabi-v7a。当然根据前面的描述我们可以像前面传递`toolchain`文件一下传递期望的参数，如以最新版的Android版本构建`x86`的库，就可以这样写
 
 ```shell
 cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=/home/Andy/Android/Sdk/ndk/21.4.7075529/build/cmake/android.toolchain.cmake -DANDROID_PLATFORM=latest -DANDROID_ABI=x86 ..
 ```
-This gives us the idea that if some third-party libraries don't provide a compilation guide, but are managed by CMake, we can just apply the above formula to compile the third-party libraries.
+这就给我们个思路，假如有些第三方库没有提供编译指南，但是是用CMake管理的，我们就可以直接套用上面的公式来编译这个第三方库。
 
 # JNI
 
-With the help of CMake, we have got the `libmath.so` dynamic library, but this library still can't be used directly by Android apps, because Android apps are developed in Java (Kotlin) language, and they are all JVM languages, the code is running on the JVM. To use the library, you also need to find a way to get the library loaded into the JVM and then you can access it. It happens that the JVM really does have this capability, it is JNI.
+前面在CMake的帮助下，我们已经得到了`libmath.so`动态库,但是这个库还是不能被Android应用直接使用，因为Android应用是用Java（Kotlin）语言开发的，而它们都是JVM语言，代码都是跑在JVM上的。要想使用这个库，还需要想办法让库加载到JVM中，然后才有可能访问得到。它碰巧的是，JVM还真有这个能力，它就是JNI。
 
-## JNI basic concepts
+## JNI基本思想
 
-JNI can provide bi-directional access from Java to C/C++, that is, you can access C/C++ methods or data in Java code, and vice versa, the same support, which is the process of the JVM can not be ignored. So to understand JNI technology, we need to think in terms of JVM.
+JNI能提供Java到C/C++的双向访问，也就是可以在Java代码里访问C/C++的方法或者数据，反过来也一样支持，这过程中JVM功不可没。所以要理解JNI技术，需要我们以JVM的角度思考问题。
 
-JVM is like a goods distribution center, no matter where the goods need to come to this distribution center, and then through it to distribute the goods to the destination. The goods here can be Java methods or C/C++ functions. But unlike ordinary courier is that the goods here do not know where their destination is, you need to find the distribution center itself. Then find the basis from where it is, that is, how to ensure that the distribution center to find the results of the uniqueness of it, the simplest way is, of course, the goods themselves to identify their own, and to ensure its uniqueness.
+JVM好比一个货物集散中心，无论是去哪个地方的货物都需要先来到这个集散中心，再通过它把货物分发到目的地。这里的货物就可以是Java方法或者C/C++函数。但是和普通的快递不一样的是，这里的货物不知道自己的目的地是哪里，需要集散中心自己去找。那么找的依据从哪里来呢，也就是怎样保证集散中心查找结果的唯一性呢，最简单的方法当然就是货物自己标识自己，并且保证它的唯一性。
 
-Obviously this is a good problem for Java, which has layers of mechanisms to guarantee uniqueness.
+显然对于Java来说，这个问题很好解决。Java有着层层保证唯一性的机制。
 
-1. the package name guarantees the uniqueness of the class name;
-2. the class name can guarantee the uniqueness of the class under the same package name; 3. the method name can guarantee the uniqueness under the same class; and
-3. method names can be used to guarantee uniqueness under the same class. 4;
-4. method overloading can be used to determine the uniqueness of the class by the type and number of parameters.
+1. 包名可以保证类名的唯一性；
+2. 类名可以保证同一包名下类的唯一性；
+3. 同一个类下可以用方法名保证唯一性；
+4. 方法发生重载的时候可以用参数类型和个数确定类的唯一性。
 
-For C/C++, there is no package name and class name, so can we determine the uniqueness with method name and method parameters? The answer is yes, as long as we use the package name and class name as a kind of qualification.
+而对于C/C++来说，没有包名和类名，那么用方法名和方法参数可以确定唯一性吗？答案是可以，只要我们把包名和类名作为一种限定条件。
 
-There are two ways to add qualifications, one is simple and crude, directly to the package name class name as part of the function name, so that the JVM does not have to look at other things, directly crude package name, class name, function name and parameters of these correspond to determine the corresponding method on the other end. This method is called static registration. In fact, it's very similar to broadcasting in Android: static registration for broadcasting is just brute-force writing in the `AndroidManifest` file, so you don't have to configure it in the code, and it takes effect as soon as it's written. In contrast to static registration, there must be a dynamic registration method. Dynamic registration is writing code that tells the JVM what functions correspond to each other, rather than having it look them up when the function is called. Obviously the advantage of this approach is that the call is a little faster, after all, we only need to register once, you can in subsequent calls directly access to the counterpart, no longer need to find the operation. However, the same and Android broadcast dynamic registration, dynamic registration is much more cumbersome, and dynamic registration should also pay attention to grasp the timing of registration, otherwise it is easy to cause the call to fail. We continue to `libmath.so` as an example.
+而添加限定条件的方式有两种，一种就是简单粗暴，直接把包名类名作为函数名的一部分，这样JVM也不用看其他的东西，直接粗暴地将包名，类名，函数名和参数这些对应起来就能确定对端对应的方法了。这种方法叫做静态注册。其实这和Android里面的广播特别像：广播的静态注册就是直接粗暴地在`AndroidManifest`文件中写死了，不用在代码里配置，一写了就生效。对应于静态注册，肯定还有个动态注册的方法。动态注册就是用写代码的方式告诉JVM函数间的对应关系，而不是让它在函数调用时再去查找。显然这种方式的优势就是调用速度更快一点，毕竟我们只需要一次注册，就可以在后续调用中直接访问到对端，不再需要查找操作。但是同样和Android中广播的动态注册一样，动态注册要繁琐得多，而且动态注册还要注意把握好注册时机，不然容易造成调用失败。我们继续以前面的`libmath.so`为例讲解。
 
-## Use local library on the Java
+## Java使用本地库
 
-Accessing C/C++ functions on the Java side is simple, in three steps:
+Java端访问C/C++函数很简单，一共分三步：
 
-1. Java calls `System.loadLibrary()` method to load the library.
+1. Java调用`System.loadLibrary()`方法载入库
    
    ```java
    System.loadlibrary("math.so");
    ```
    
-   It's worth noting here that CMake generates a dynamic library called `libmath.so`, but here it's just `math.so`, which means that you don't need to pass the `lib` prefix. After this step, the JVM knows that there is a `plus` function.
+   这里有个值得注意的地方，CMake生成的动态库是`libmath.so`，但是这里只写了`math.so`，也就是说不需要传递`lib`这个前缀。这一步执行完后，JVM就知道有个`plus`函数了。
 
-2. Java declares a `native` method that corresponds to a C++ function. Correspondence means that the parameter list and return value should be the same, but the method name can be different.
+2. Java声明一个和C++函数对应的`native`方法。这里对应指的是参数列表和返回值要保持一致，方法名则可以不一致。
    
    ```java
    public native int nativePlus(int left,int right);
    ```
    
-   Often, it is customary to prefix `native` methods with `native`.
+   通常，习惯将`native`方法添加`native`的前缀。
 
-3. Call this `native` method directly where needed. Calling the method is the same as a normal Java method, passing matching parameters and receiving the return value with the matching type.
+3. 在需要的地方直接调用这个`native`方法。调用方法和普通的Java方法是一致的，传递匹配的参数，用匹配的类型接收返回值。
 
-Combining these steps into a single class looks like this
+把这几步融合到一个类里面就是这样
 ```java
 package hongui.me;
 
@@ -309,23 +313,23 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
-## Introducing JNI on the C/C++ side
-JNI is actually for C/C++ is a layer of adaptation layer, in this layer mainly do the work of function conversion, do not do the implementation of specific functions, so, in general, we will create a new source file, used to deal with the JNI layer of the problem, and the JNI layer of the most important problem is, of course, the method of registration problems mentioned earlier.
-### Static registration
-The basic idea of static registration is to write a C/C++ function signature corresponding to an existing Java `native` method, specifically in four steps.
+## C/C++端引入JNI
+JNI其实对于C/C++来说是一层适配层，在这一层主要做函数转换的工作，不做具体的功能实现，所以，通常来说我们会新建一个源文件，用来专门处理JNI层的问题，而JNI层最主要的问题当然就是前面提到的方法注册问题了。
+### 静态注册
+静态注册的基本思路就是根据现有的Java `native`方法写一个与之对应的C/C++函数签名，具体来说分四步。
 
-1. Start by writing the exact same function signature as the Java `native` function
+1. 先写出和Java `native`函数一模一样的函数签名
 ```c++
 int nativePlus(int left,int right)
 ```
 
-2. Add the package name and class name in front of the function name. Because package names are split in Java with `. ` split, whereas in C/C++ dots are usually used as function calls, to avoid compilation errors, you need to replace `. ` is replaced with `_`.
+2. 在函数名前面添加包名和类名。因为包名在Java中是用`.`分割的，而C/C++中点通常是用作函数调用，为了避免编译错误，需要把`.`替换成`_`。
 ```c++
 hongui_me_MainActivity_nativePlus(int left,int right)
 ```
 
-3. Converting function parameters. As mentioned earlier all operations are JVM based, and in Java these are natural, but in C/C++ there is no JVM environment, and providing a JVM
-environment would have to be in the form of adding parameters. In order to do this, any JNI function has to add two parameters at the beginning of the parameter list. The smallest environment inside Java is a thread, so the first parameter is the thread environment object `JNIEnv`, which represents the caller's thread environment when calling this function, and this object is the only way for C/C++ to access Java. The second is the calling object. Since you can't call methods directly in Java, you need to call them through a class name or a class, the second argument represents that object or class, which is of type `jobjet`. Starting from the third parameter, the parameter list corresponds to the Java side, but only just, after all, there are some types that are not available in the C/C++ side, which is the type system in JNI, for our current example the `int` value in Java corresponds to the `jint` value in JNI, so the last two parameters are of type `jint`. This is a critical step, as failure to convert any of the parameters can cause the program to crash.
+3. 转换函数参数。前面提到过所有的操作都是基于JVM的，在Java中，这些是自然而然的，但是在C/C++中就没有JVM环境，提供JVM
+环境的形式就只能是添加参数。为了达到这个目的，任何JNI的函数都要在参数列表开头添加两个参数。而Java里面的最小环境是线程，所以第一个参数就是代表调用这个函数时，调用方的线程环境对象`JNIEnv`，这个对象是C/C++访问Java的唯一通道。第二个则是调用对象。因为Java中不能直接调用方法，需要通过类名或者某个类来调用方法，第二个参数就代表那个对象或者那个类，它的类型是`jobjet`。从第三个参数开始，参数列表就和Java端一一对应了，但是也只是对应，毕竟有些类型在C/C++端是没有的，这就是JNI中的类型系统了，对于我们当前的例子来说Java里面的`int`值对应着JNI里面的`jint`,所以后两个参数都是`jint`类型。这一步至关重要，任何一个参数转换失败都可能造成程序崩溃。
 ```c++
 hongui_me_MainActivity_nativePlus(
         JNIEnv* env,
@@ -334,9 +338,9 @@ hongui_me_MainActivity_nativePlus(
         jint right)
 ```
 
-4. Add the necessary prefixes. This step can be easily overlooked because this part doesn't come so naturally. First we have to add a prefix `Java` to the function name, which now looks like this `Java_hongui_me_MainActivity_nativePlus`. Secondly, you need to add `JNIEXPORT` and `JNICALL` at the end of the return value, here the return value is `jint`, so after adding these two macros it looks like this `JNIEXPORT jint JNICALL`. Finally, you have to add the `extern "C" ` compatibility directive at the beginning. As to why this step is added, interested readers can go to the details, the simple summary is that this is the JNI specification.
+4. 添加必要前缀。这一步会很容易被忽略，因为这一部分不是那么自然而然。首先我们的函数名还得加一个前缀`Java`,现在的函数名变成了这样`Java_hongui_me_MainActivity_nativePlus`。其次在返回值两头需要添加`JNIEXPORT`和`JNICALL`，这里返回值是`jint`，所以添加完这两个宏之后是这样`JNIEXPORT jint JNICALL`。最后还要在最开头添加`extern "C" `的兼容指令。至于为啥要添加这一步，感兴趣的读者可以去详细了解，简单概括就是这是JNI的规范。
 
-After these four steps, the final version of C/C++ function signature looks like this
+经过这四步，最终静态方法找函数的C/C++函数签名变成了这样
 ```c++
 #include "math.h"
 
@@ -350,7 +354,7 @@ Java_hongui_me_MainActivity_nativePlus(
         }
 ```
 
-Notice that here I changed the previous `math.cpp` to `math.h` and called the function in the JNI adaptation file (filename is `native_jni.cpp`). So now there are two source files, need to update `CMakeList.txt` a bit.
+注意到，这里我把前面的`math.cpp`改成了`math.h`，并在JNI适配文件（文件名是`native_jni.cpp`）中调用了这个函数。所以现在有两个源文件了，需要更新一下`CMakeList.txt`。
 ```cmake
 cmake_minimum_required(VERSION 3.18。1)
 
@@ -358,16 +362,16 @@ project(math)
 
 add_library(${PROJECT_NAME} SHARED native_jni.cpp)
 ```
-You can see that we only change the last line of the filename, because `CMakeLists.txt` is currently located in the directory is also `include` lookup directory, so do not need to give it a separate value, if you need to add other locations of the header file can be used to `include_directories(dir)` to add.
+可以看到这里我们只把最后一行的文件名改了，因为`CMakeLists.txt`当前所在的目录也是`include`的查找目录，所以不需要给它单独设置值，假如需要添加其他位置的头文件则可以使用`include_directories(dir)`添加。
 
-Now use CMake to recompile and generate dynamic libraries, and this time Java will run directly without errors.
+现在使用CMake重新编译，生成动态库，这次Java就能直接不报错运行了。
 
-### Dynamic registration
-As mentioned earlier dynamic registration needs to pay attention to the timing of registration, so what is considered a good time? In the previous section of Java's use of local libraries, we know that in order to use the library, you must first be loaded, loaded after the success of the JNI methods can be called. Then dynamic registration must occur after loading, before use. JNI is very humane to think of this, in the library after the completion of loading will immediately call `jint JNI_OnLoad (JavaVM *vm, void *reserved)` function, this method also provides a key `JavaVM` object, it is simply the best entry point to the dynamic registration of the It's simply the best entry point for dynamic registration. Having determined the timing of the registration, let's now do it in practice. ***Note: Dynamic registration and static registration are both ways of implementing JNI functions on the C/C++ side, and there is generally only one registration method for the same function.*** So, the next steps are parallel to static registration, not sequential.
+### 动态注册
+前面提到过动态注册需要注意注册时机，那么什么算是好时机呢？在前面Java使用本地库这一节，我们知道，要想使用库，必须先载入，载入成功后就可以调用JNI方法了。那么动态注册必然要发生在载入之后，使用之前。JNI很人性化的想到了这一点，在库载入完成以后会马上调用`jint JNI_OnLoad(JavaVM *vm, void *reserved)`这个函数，这个方法还提供了一个关键的`JavaVM`对象，简直就是动态注册的最佳入口了。确定了注册时机，现在我们来实操一下。***注意：动态注册和静态注册都是C/C++端实现JNI函数的一种方式，同一个函数一般只采用一种注册方式。***所以，接下来的步骤是和静态注册平行的，并不是先后关系。
 
-Dynamic registration in six steps
+动态注册分六步
 
-1. Create a new `native_jni.cpp` file and add the implementation of the `JNI_OnLoad()` function.
+1. 新建`native_jni.cpp`文件，添加`JNI_OnLoad()`函数的实现。
 ```c++
 extern "C" JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved) {
@@ -375,28 +379,28 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
    return JNI_VERSION_1_6;
 }
 ```
-This is the standard form and implementation of this function, the previous string are the standard form of JNI function, the key point is the function name and parameters and return value. In order for this function to be called automatically after the library is loaded, the function name must be this, and the parameter form can not be changed, and the final return value to tell the JVM the current JNI version. In other words, these are templates, just copy.
+这就是这个函数的标准形式和实现，前面那一串都是JNI函数的标准形式，关键点在于函数名和参数以及返回值。要想这个函数在库载入后自动调用，函数名必须是这个，而且参数形式也不能变，并且用最后的返回值告诉JVM当前JNI的版本。也就是说，这些都是模板，直接搬就行。
 
-2. Get `JNIEnv` object
+2. 得到`JNIEnv`对象
 
-As mentioned earlier, all JNI-related operations are done through the `JNIEnv` object, but now we only have a `JavaVM` object, so obviously the secret is in the `JavaVM`.
-The secret lies in the `JavaVM`. You can get the `JNIEnv` object through its `GetEnv` method.
+前面提到过，所有的JNI相关的操作都是通过`JNIEnv`对象完成的，但是现在我们只有个`JavaVM`对象，显然秘诀就在`JavaVM`身上。
+通过它的`GetEnv`方法就可以得到`JNIEnv`对象
 ```c++
 JNIEnv *env = nullptr;
 vm->GetEnv(env, JNI_VERSION_1_6);
 ```
 
-3. Find the target class
+3. 找到目标类
 
-As I said earlier, both dynamic and static registration are most qualified by package and class names, just not in the same way. So for dynamic registration we still have to use the package name and class name, but this time in a different form. Static registration uses `_` instead of `. `, this time we're going to use `/` instead of `. `. So we end up with a class of the form `hongui/me/MainActivity`. This is a string form, so how do we convert it to a `jclass` type in JNI, which is where `JNIEnv` from step 2 comes in.
+前面说过，动态注册和静态注册都是要有包名和类名最限定的，只是使用方式不一样而已。所以动态注册我们也还是要使用到包名和类名，不过这次的形式又不一样了。静态注册包名类名用`_`代替`.`，这一次要用`/`代替`.`。所以我们最终的类形式是`hongui/me/MainActivity`。这是一个字符串形式，怎样将它转换成JNI中的`jclass`类型呢，这就该第二步的`JNIEnv`出场了。
 ```c++
 jclass cls=env->FindClass("hongui/me/MainActivity");
 ```
-This `cls` object is a one-to-one correspondence with the `MainActivity` in Java. With the class object the next step is of course the methods.
+这个`cls`对象就和Java里面那个`MainActivity`是一一对应的了。有了类对象下一步当然就是方法了。
 
-4. Generate an array of JNI function objects.
+4. 生成JNI函数对象数组。
 
-Because dynamic registration can register multiple methods of a class at the same time, the registration parameters are in the form of an array, and the type of the array is `JNINativeMethod`. The purpose of this type is to associate the `native` method on the Java side with the JNI method, how it is done, look at its structure
+因为动态注册可以同时注册一个类的多个方法，所以注册参数是数组形式的，而数组的类型是`JNINativeMethod`。这个类型的作用就是把Java端的`native`方法和JNI方法联系在一起，怎么做的呢，看它结构。
 ```c
 typedef struct {
 const char* name;
@@ -404,35 +408,35 @@ const char* signature;
 void* fnPtr;
 } JNINativeMethod;
 ```
-* `name` corresponds to the name of the `native` method on the Java side, so the value should be `nativePlus`.
-* `signature` corresponds to the parameter list of the `native` method plus the signature of the function type.
+* `name`对应Java端那个`native`的方法名，所以这个值应该是`nativePlus`。
+* `signature`对应着这个`native`方法的参数列表外加函数类型的签名。
 
-What is a signature? It is a type shorthand. There are eight basic types in Java, as well as methods, objects, classes. Arrays and so on, all of these things have a set of corresponding string forms, as if it were a hash table, where the keys are string representations of the types, and the values are the corresponding Java types. For example, `jint` is a true JNI type, its type signature is `I`, which is the initial capitalization of `int`.
+什么是签名呢，就是类型简写。在Java中有八大基本类型，还有方法，对象，类。数组等，这些东西都有一套对应的字符串形式，好比是一张哈希表，键是类型的字符串表示，值是对应的Java类型。如`jint`是真正的JNI类型，它的类型签名是`I`，也就是`int`的首字母大写。
 
-Functions also have their own type signature `(paramType)returnType` Here both `paramType` and `returnType` need to be JNI type signatures, with no separator between types.
+函数也有自己的类型签名`(paramType)returnType`这里的`paramType`和`returnType`都需要是JNI类型签名，类型间不需要任何分隔符。
 
-In summary, the type signature of `nativePlus` is `(II)I`. Two integer arguments return another integer.
+综上，`nativePlus`的类型签名是`(II)I`。两个整型参数，返回另一个整型。
 
-* `fnPtr` is, as its name suggests, a function pointer, and the value is our real `nativePlus` implementation (which we haven't implemented yet here, so let's assume it's `jni_plus` for now).
+* `fnPtr`正如它名字一样，它是一个函数指针，值就是我们真正的`nativePlus`实现了（这里我们还没有实现，所以先假定是`jni_plus`）。
 
-To summarize, the final array of function objects should look like this
+综上，最终函数对象数组应该是下面这样
 ```c++
  JNINativeMethod methods[] = {
     {"nativePlus","(II)I",reinterpret_cast<void *>(jni_plus)}
  };
 ```
 
-5. Registration
+5. 注册
 
-Now that you have the `jclass` object representing the class, and the `JNINativeMethod` array representing the methods, and the `JNIEnv` object, combine them to complete the registration
+现在有了代表类的`jclass`对象，还有了代表方法的`JNINativeMethod`数组，还有`JNIEnv`对象，把它们结合起来就可以完成注册了
 ```c++
 env->RegisterNatives(cls,methods,sizeof(methods)/sizeof(methods[0]));
 ```
-The third parameter represents the number of methods. We use the `sizeof` operation to get the size of all the `methods`, and then we use `sizeof` to get the size of the first element to get the number of `methods`. Of course, it's fine to just manually fill in 1 here.
+这里第三个参数是代表方法的个数，我们使用了`sizeof`操作法得出了所有的`methods`的大小，再用`sizeof`得出第一个元素的大小，就可以得到`methods`的个数。当然，这里直接手动填入1也是可以的。
 
-6. Implementing JNI Functions
+6. 实现JNI函数
 
-In step 4, we used a `jni_plus` to represent the native implementation of `nativePlus`, but this function hasn't actually been created yet, so we need to define it in the source file. Now the name of the function can be whatever you want, it doesn't have to be as long as the static registration, just keep the final function name the same as the one used in the registration. However, the prefix `extern "C"` should be added here, to avoid the compiler to do something special with the function name. The argument list is identical to the static registration. So, our final function implementation is as follows.
+在第4步，我们用了个`jni_plus`来代表`nativePlus`的本地实现，但是这个函数实际上还没有创建，我们需要在源文件中定义。现在这个函数名就可以随便起了，不用像静态注册那样那么长还不能随便命名，只要保持最终的函数名和注册时用的那个名字一致就可以了。但是这里还是要加上`extern "C"`的前缀，避免编译器对函数名进行特殊处理。参数列表和静态注册完全一致。所以，我们最终的函数实现如下。
 ```c++
 #include "math.h"
 
@@ -444,10 +448,10 @@ extern "C" jint jni_plus(
            return plus(left,right);
         }
 ```
-Well, the implementation of dynamic registration is now complete, and after CMake compiles it, you'll see that the result is exactly the same as static registration. So it's up to you to decide what you want and how you want to do it. When you need to call the `native` method a lot, I think dynamic registration is an advantage, but if you call it very rarely, you can just use static registration, and the lookup consumption is completely negligible.
+好了，动态注册的实现形式也完成了，CMake编译后你会发现结果和静态注册完全一致。所以这两种注册方式完全取决于个人喜好和需求，当需要频繁调用`native`方法时，我觉得动态注册是有优势的，但是假如调用次数很少，完全可以直接用静态注册，查找消耗完全可以忽略不记。
 
 # One more thing
-I mentioned earlier that CMake is a master at managing C/C++ projects, but for Android development, Gradle is the way to go. Google realizes this too, so the gradle plugin provides a silky smooth configuration for CMake and Gradle to work seamlessly together directly. Under the `android` build block, you can directly configure the path and version information of `CMakeLists.txt`.
+前面我提到CMake是管理C/C++项目的高手，但是对于Android开发来说，Gradle才是YYDS。这一点Google也意识到了，所以gradle的插件上直接提供了CMake和Gradle无缝衔接的丝滑配置。在`android`这个构建块下，可以直接配置`CMakeLists.txt`的路径和版本信息。
 ```groovy
 externalNativeBuild {
         cmake {
@@ -456,7 +460,7 @@ externalNativeBuild {
         }
     }
 ```
-This way, if you change your C/C++ code or Java code, you can just click run and gradle will compile the libraries and copy them to the final directory, so you don't need to compile and copy the libraries manually anymore. Of course, if you are not satisfied with the default behavior, you can configure the default behavior via `defaultConfig`, which looks like this
+这样，后面无论是修改了C/C++代码，还是修改了Java代码，都可以直接点击运行，gradle会帮助我们编译好相应的库并拷贝到最终目录里，完全不再需要我们手动编译和拷贝库文件了。当然假如你对它的默认行为还不满意，还可以通过`defaultConfig`配置默认行为，它的大概配置可以是这样
 ```groovy
 android {
     compileSdkVersion 29
@@ -478,13 +482,13 @@ android {
     }
 }
 ```
-Here, `cppFlags` specifies C++-related arguments, and there's a corresponding `cFlags` that specifies C-related arguments. `arguments` is to specify the compilation parameters of CMake, the last one is familiar with the library will eventually be compiled to generate a few architectural packages, we are here just to generate two.
+这里`cppFlags`是指定C++相关参数的，对应的还有个`cFlags`用来指定C相关参数。`arguments`则是指定CMake的编译参数，最后一个就是我们熟悉的库最终要编译生成几个架构包了，我们这里只是生成两个。
 
-With these configurations, Android Studio development NDK is exactly like the development of Java, there are intelligent prompts, can be compiled instantly, run instantly, enjoy the silky smooth.
+有了这些配置，Android Studio开发NDK完全就像开发Java一样，都有智能提示，都可以即时编译，即时运行，纵享丝滑。
 
-# Sumary
-NDK development should actually be divided into two parts, C++ development and JNI development.
-C++ development is exactly the same as C++ development on PC, you can use standard libraries, you can refer to third-party libraries, with the expansion of the project scale, CMake was introduced to manage the project, which has obvious advantages for cross-platform projects, and can also be seamlessly integrated into Gradle.
-JNI development is more concerned about the correspondence between the C/C++ side and the Java side, each `native` method on the Java side should have a corresponding C/C++ function to correspond to it, JNI provides
- JNI provides both static registration and dynamic registration to accomplish this work, but the core is to use the package name, class name, function name, and parameter list to determine the uniqueness. Static registration reflects the package name and class name in the function name, while dynamic registration uses the class object, local method object, and `JNIENV` registration method to achieve uniqueness.
-NDK is the big boss behind, it provides compiler, linker and other tools to accomplish cross-compilation, and some system libraries, such as `log`, `z`, `opengl` and so on for us to use directly.
+# 总结
+NDK开发其实应该分为两部分，C++开发和JNI开发。
+C++开发和PC上的C++开发完全一致，可以使用标准库，可以引用第三方库，随着项目规模的扩大，引入了CMake来管理项目，这对于跨平台项目来说优势明显，还可以无缝衔接到Gradle中。
+而JNI开发则更多的是关注C/C++端和Java端的对应关系，每一个Java端的`native`方法都要有一个对应的C/C++函数与之对应，JNI提供
+ 静态注册和动态注册两种方式来完成这一工作，但其核心都是利用包名，类名，函数名，参数列表来确定唯一性。静态注册将包名，类名体现在函数名上，动态注册则是使用类对象，本地方法对象，`JNIENV`的注册方法来实现唯一性。
+NDK则是后面的大BOSS，它提供编译器，链接器等工具完成交叉编译，还有一些系统自带的库，如`log`,`z`,`opengl`等等供我们直接使用。
