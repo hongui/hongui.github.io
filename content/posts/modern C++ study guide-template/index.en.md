@@ -1,6 +1,6 @@
 ---
-title: "现代C++学习指南 模板"
-description: "现代C++学习指南 模板"
+title: "Modern C++ study guide-template"
+description: "Modern C++ study guide-template"
 
 date: 2022-10-31T21:33:38+08:00
 lastmod: 2022-10-31T21:33:38+08:00
@@ -11,27 +11,27 @@ author: hongui
 categories:
  - C++
 tags:
- - 学习指南
+ - Study guide
  - C++
 
 toc: true
 draft: false
-url: post/现代C++学习指南 模板.html
+url: post/Modern C++ study guide-template.html
 ---
 
-> 模板作为C++重要的特性，一直有着举足轻重的地位，是编写高度抽象代码的利器。
+> Template have always had a pivotal role as an important feature of C++, and are a great tool for writing highly abstract code.
 
-### 什么是模板
-模板在现实生活中就是范例：把都一样的部分固定起来，把变动的部分空出来，使用时将两部分合起来组成有效的东西。如申请书，Word模板都是这种形式。C++中的模板也是如此，不过更明确的是C++中的模板，变动的部分是一个代指类型的东西，称之为泛型参数。
-<!--more-->
-我们先从一个例子来看一看模板是怎样发展而来的。如我们需要计算两个对象相加的结果，该如何写代码呢？在写代码前，我们有几个问题需要讨论清楚：
-首先我们需要**确定**的是这两个**对象**是什么**类型**，毕竟C++是强类型的编程语言，变量，函数，类都是要明确指定类型是什么的，不确定的类型编译就不能通过。我们先假设这两个类型是整型。确定了类型之后，还需要确定这两个对象需要怎样加起来，根据我们假设的整型，我们知道可以直接调用运算符`+`。最后我们需要确定，两个对象相加后的结果类型是什么，整型相加的结果也是整型。综上，这个例子的代码看起来可能是这样的
+### What is template
+Template are real-life examples: fix the parts that are all the same, leave the parts that change empty, and combine the two parts to form something valid when you use it. Application forms and Word templates are examples of this, as are templates in C++, but more explicitly in C++, where the variable part is a surrogate type, called a generic parameter.
+
+Let's look at an example to see how templates evolved. If we need to calculate the result of adding two objects, how do we write the code? Before we write the code, we have a couple of issues that we need to discuss clearly:
+The first thing we need to determine is that the two objects are of what type, after all, C++ is a strongly typed programming language, variables, functions, and classes are explicitly specified as to what the type is, and the compilation of an unspecified type will not pass. Let's assume for a moment that the two types are integers. Once we have determined the type, we need to determine how the two objects need to be added together. Based on our assumption that they are integers, we know that we can just call the operator `+`. Finally, we need to determine what the result type of the addition of the two objects will be, and the result of the addition of an integer type will also be an integer type. To summarize, the code for this example might look something like this
 ```cpp
 int sum(int left,int right){
 	return left + right;
 }
 ```
-这个例子很简单，简单到甚至都不需要单独写成一个函数。如果我们需要计算的数据不是两个数，而是一个数组的和呢？基于前面的分析和假设，我们也能很快实现相应的代码
+This example is simple, so simple that it doesn't even need to be written as a separate function. What if the data we need to calculate is not two numbers, but the sum of an array? Based on the previous analysis and assumptions, we can also quickly implement the corresponding code
 ```cpp
 int sum(const int data[], const std::size_t length) {
 	int result{};
@@ -41,7 +41,7 @@ int sum(const int data[], const std::size_t length) {
 	return result;
 }
 ```
-同样很简单。但是遗憾的是，这个函数通用性不强，它只能计算整型的数组和，假如我们需要计算带有小数点的数组和，它就不灵了，因为第一个参数类型不匹配，尽管我们知道`sum`的代码几乎都能复用，除了第一行的`int`需要替换成`double`。但是不能！我们只能复制一份，然后把`int`的地方改成`double`。
+Again, very simple. Unfortunately, this function is not very general, it can only compute integer sums, if we need to compute a sum with a decimal point, it doesn't work because the first argument type doesn't match, even though we know that almost all of `sum`'s code can be reused, except for the `int` in the first line, which needs to be replaced with `double`. But it can't! We can only make a copy and change the `int` places to `double`.
 ```cpp
 double sum(const double data[], const std::size_t length) {
 	double result{};
@@ -51,12 +51,14 @@ double sum(const double data[], const std::size_t length) {
 	return result;
 }
 ```
-这时你就会发现问题了，**这个过程，我们仅仅改变了类型信息**。这样的问题还会继续增加，我们可能又需要求`float`的数组和，上面那个`double`的数组和同样匹配不了，因为`float`，`double`是两个类型。正是因为数据类型不一样，所以很多时候我们需要为不同的数据提供相似的代码，这在数据类型膨胀的情况下是很痛苦的，当对算法进行修改的时候我们需要保证所有的数据类型都被修改到，并且要逐个进行测试，这无疑会增加工作量，并放大错误率。但是实际有效的代码都是要明确类型的，如果类型不明确，编译器就没法确定代码是否合法，不确定的事情编译器就要报错，所以按照普通的思路，这个问题是无解的。
-但是其实很多时候，这些相似的代码仅仅是数据类型不一样而已，对付这种重复的工作应该让给计算机来完成，也就是编译器。所以我们需要一种技术，让**编译器先不管具体类型是什么，而是用一种特殊的类型来替换，这个类型可以替换成任何类型，用这个特殊的类型完成具体的算法，在使用的时候根据实际的需求，将类型信息提供给算法，让编译器生成满足所提供类型的具体算法，而这就是模板**。这和生活中的模板思想上是共通的。算法是固定的部分，数据类型是可变的部分，两个合起来就是合法的C++代码。也就是利用模板，我们可以只写一个算法，借助编译器生成所有类型的算法，这些算法之间唯一不同的就是类型。
-当然光有模板还不够，上面只解决了类型的问题，没有解决算法实现的问题。怎么说呢，如我们有一个需求，需要将数据先排序，再查找最大值。这对于数字（`int`,`float`,`double`等）类型是有效的，直接使用比较运算符（`<`,`>`）就可以完成了，但是假如想让这个算法适用于自定义类型呢？直接在模板实现中写比较运算符对自定义类型是无效的，因为自定义类型没有实现相对应的比较运算函数。解决方法也很简单，自定义类型实现相对应的比较运算符就行了。诸如此类的问题，在模板中会经常遇到，因为我们对类型的信息一无所知，但是又要确保几乎所有的类型都能正常运作，这就不得不运用各种技术对类型进行限定或者检测，这其实才是模板问题的精髓。所以模板问题不仅仅是类型问题，还是其他C++问题的综合体，需要对C++特性有着较为完整的理解，才能写出有用高效的代码。
-C++中通常将模板分为函数模板和模板类，我们先从比较简单的函数模板开始认识。
-### 函数模板
-函数模板是一种函数，和普通函数不一样的地方是，它的参数列表中至少有一个是不确定类型的。我们用开头的例子来小试牛刀：
+This is where you see the problem, **this process, we have only changed the type information**. The problem continues to grow, we may need to ask for an array sum of `float` again, the same array sum of `double` above won't match, because `float`, `double` are two types. It is because the data types are different that many times we need to provide similar code for different data, which is painful in the case of bloated data types, and when making changes to the algorithm we need to make sure that all the data types are modified and tested one by one, which definitely increases the workload and amplifies the error rate. But the actual valid code is to specify the type, if the type is not clear, the compiler can not determine whether the code is legal, not sure things the compiler has to report an error, so in accordance with the ordinary thinking, this problem is not solved.
+
+But in fact, very often, these similar codes are simply different data types, and dealing with this repetitive work should be left to the computer, i.e. the compiler. So we need a technique that allows the **compiler to not care what the specific type is in the first place, but to replace it with a special type that can be replaced with any type, complete the specific algorithm with this special type, and provide the type information to the algorithm based on the actual needs at the time of use to allow the compiler to generate a specific algorithm that satisfies the provided type, which is a template**. This is ideologically common with templates in life. The algorithm is the fixed part, the data type is the variable part, and the two together make legal C++ code. That is, using templates, we can write just one algorithm, and with the help of the compiler generate algorithms of all types, and the only difference between these algorithms is the type.
+
+Of course the template is not enough, the above only solves the problem of the type, did not solve the problem of algorithm implementation. How so, e.g. we have a requirement to sort the data first and then find the maximum value. This is valid for numeric (`int`, `float`, `double`, etc.) types, and can be done using comparison operators (`<`, `>`), but what if we want to make this algorithm work for custom types? Writing the comparison operator directly in the template implementation won't work for custom types because they don't have a corresponding comparison function. The solution is simple: the custom type implements the corresponding comparison operator. Problems such as these will often be encountered in the template, because we do not know anything about the type of information, but to ensure that almost all types can work properly, which will have to use a variety of techniques to qualify or detect the type, which is actually the essence of the template problem. So the template problem is not just a type problem, or a combination of other C++ problems, and requires a more complete understanding of C++ features in order to write useful and efficient code.
+In C++, templates are usually divided into function templates and template classes, so let's start with the simpler function templates.
+### Function template
+A function template is a function that differs from a regular function in that at least one of its argument list is of indeterminate type. Continue with our example above:
 ```cpp
 template <typename T>
 T sum(const T data[], const std::size_t length) {
@@ -76,22 +78,22 @@ int main() {
 	std::cout << "intSum = " << sum<int>(intData,len) << ", floatSum = " << sum<float>(floatData,len) <<", doubleSum = " <<sum<double>(doubleData,len)<<std::endl;
 	return 0;
 }
-// 输出
+// output
 // intSum = 6, floatSum = 6, doubleSum = 6
 ```
-在这里，我们仅仅写了一个函数，就可以同时适用于`int`，`float`，`double`。如果还有其它类型实现了默认初始化和运算符`+=`就同样可以使用这个函数来求和，不需要改动任何现有代码，这就是模板的魅力。
-在继续看新东西前，我们先来认识一下函数模板和普通函数之间有什么不同：
+Here, we've just written a function that works for `int`, `float`, and `double`. If there are other types that implement the default initialization and operator `+=` you can also use this function to sum without changing any existing code, that's the beauty of templates.
+Before moving on to something new, let's recognize the difference between a function template and a regular function:
 
-1. 函数模板需要一个模板头，即`template<typename T>`。它的作用是告诉编译器下面的函数中遇到`T`的地方都不是具体类型，需要在调用函数时再确定。
-2. 函数声明中，类型位置被`T`替代了，也就是说`T`是一个占位类型，可以将它当作普通类型来用。在写模板代码时，这是很有用的。
+1. Function templates require a template header, `template<typename T>`. It serves to tell the compiler that none of the following functions where `T` is encountered are of a specific type, and that it needs to be determined again when the function is called.
+2. In the function declaration, the type position is replaced by `T`, which means that `T` is a placeholder type that can be used as a normal type. This is useful when writing boilerplate code.
 
-再来看使用函数的地方，也就是类似`sum<xxx>(xxxData,len)`的语句，其中的`xxx`代表数据类型，也就是函数模板中`T`的实际类型。简单来说就告诉编译器，用类型`xxx`替换函数模板中的类型`T`，这个过程有个官方的名字，**实例化**,这是另一个和普通函数不一样的地方.。用函数模板是需要经过两个步骤的。
+Looking again at the use of functions, that is, statements like `sum<xxx>(xxxData,len)`, where `xxx` represents the data type, which is the actual type of `T` in the function template. This simply tells the compiler to replace the type `T` in the function template with the type `xxx`, a process that has an official name, **instantiation**, which is another thing that is different from normal functions.... Using function templates is a two-step process.
 
-1. 定义模板。这一步没有具体类型，需要使用一个泛型参数来对类型占位，也就是只要是出现实际类型的地方，都要使用泛型参数来占位，并用这个泛型参数来实现完整的算法。这一步编译器由于不知道具体类型，不会对一些类型操作进行禁止，而只是检查标识符是否存在，语法是否合法等。
-2. 实例化。实例化的过程只会发生在开发者调用函数模板的地方，没有实例化的函数模板的代码是不会出现在最执行文件中的。编译器会对每一处发生实例化的地方，用实际参数来替换泛型参数，并检查实际类型是否支持算法中所有的操作，如果不支持，则编译失败，需要开发者实现相关的操作或者修改函数模板。如上例中，假如我们用一个自定义类型来实例化，就会发现编译无法通过，因为自定义类型没有定义操作符`+=`（除非该操作符已经被定义了），这个过程就发生在实例化。解决方案也很简单，对自定义类型添加操作符`+=`即可。
-### 类型推导
-在上例中，我们发现在实例化的过程中，要同时给函数模板传递类型参数和数据参数，并且类型参数往往和数据的类型是一一对应的，这中冗杂的语法对于现代C++来说是不可接受的，所以现代C++编译器都支持类型推导。类型推导可以让开发者省略类型参数，直接根据数据类型来推导出类型参数，所以上例实例化都可以写成`sum(xxxData,len)`的形式，编译器能分别推导出`xxx`的类型是`int`,`float`，`double`。
-当然类型推导也不是万能的，我们来看下面这个例子
+1. Define the template. This step does not have a specific type and requires the use of a generic parameter to placeholder the type, i.e., wherever an actual type occurs, use the generic parameter to placeholder it and use this generic parameter to implement the complete algorithm. In this step the compiler, since it does not know the exact type, will not disable some type operations, but only check if the identifier exists, if the syntax is legal etc.
+2. Instantiation. The process of instantiation happens only where the developer calls the function template, the code of the function template that is not instantiated does not appear in the most executable file. The compiler will replace the generic parameter with the actual parameter for each place where instantiation occurs, and check whether the actual type supports all the operations in the algorithm, if not, the compilation fails, and the developer needs to implement the relevant operations or modify the function template. As in the above example, if we instantiate a custom type, we will find that the compilation fails because the custom type does not define the operator `+=` (unless that operator is already defined), and this process occurs in the instantiation. The solution is simple: add the operator `+=` to the custom type.
+### Type derivation
+In the above example, we found that in the process of instantiation, we have to pass both the type parameter and the data parameter to the function template, and the type parameter is often one-to-one with the type of the data, which is a redundant syntax for modern C++ is unacceptable, so modern C++ compilers all support type derivation. Type derivation allows the developer to omit the type parameter and derive the type parameter directly from the data type, so the above example instantiation can be written in the form of `sum(xxxData,len)`, and the compiler will be able to derive the type of `xxx` to be `int`, `float`, and `double` respectively.
+Of course, type derivation is not foolproof, let's look at the following example
 ```cpp
 template <typename T>
 T max(T a, T b) {
@@ -104,11 +106,11 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // max(1,2) = 2
 ```
-这个例子很直观，结果当然也毫无意外。现在我们要变形了：我们把变量`b`的类型改为`float`，就会发现编译无法通过了。提示我们数据类型不匹配，因为`a`是`int`，`b`是`float`，所以推导出的结果就是`max<int,float>()`，而实际上我们是只有一个类型参数的。
-那既然问题很明了，解决方法也似乎很简单，给`max`再加一个参数不就行了吗？我们来看一看。
+This example is intuitive, and the result is certainly unsurprising. Now we're going to morph: we change the type of the variable `b` to `float` and realize that the compilation won't pass. The hint is that we have a data type mismatch, because `a` is `int` and `b` is `float`, so the deduction is `max<int,float>()`, whereas in reality we have only one type parameter.
+So since the problem is clear, the solution seems simple enough, wouldn't it be enough to add another parameter to `max`? Let's take a look.
 ```cpp
 template <typename A,typename B>
 A max(A a, B b) {
@@ -121,11 +123,11 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // max(1,2) = 2
 ```
-经过这样改之后，编译和运行都不报错了，问题似乎解决了，是吗？
-并不是，我们把`float b = 2;`换成`float b = 2.5;`，
+After this change, it compiles and runs without errors, so the problem seems to be solved, right?
+No, it's not. Let's replace `float b = 2;` with `float b = 2.5;`.
 ```cpp
 int main() {
 	int a = 1;
@@ -134,11 +136,11 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // max(1,2.5) = 2
 ```
-再次运行程序，就会发现输出是错误的了。因为函数模板中，我们把返回值定义成了`A`，在实例化的时候`A`被推导成了`int`类型，所以实际上`max`的返回值就成了`int`类型，最大值`B`就被从`float`强制转换成了`int`类型，丢失了数据精度。那有没有解决方法呢？有的，而且不止一种!
-根据上面的分析，其问题的根本是数据被强转了，解决方案当然就是阻止它发生强转，也就是保持两种数据类型是一致的，那怎么保证呢？阻止编译器的类型推导，手动填写类型参数。
+Run the program again, and you'll see that the output is wrong. This is because in the function template, we defined the return value as `A`, and at instantiation time `A` was derived to be of type `int`, so in fact the return value of `max` became of type `int`, and the maximum value, `B`, was forcibly converted from a `float` to an `int`, and the data precision was lost. So is there a solution? There is, and there is more than one!
+According to the above analysis, the root of the problem is that the data has been forcibly converted, and the solution is of course to prevent it from happening, that is, to keep the two data types consistent, so how to ensure it? Block the compiler's type derivation, manually fill in the type parameter.
 ```cpp
 int main() {
 	int a = 1;
@@ -147,17 +149,17 @@ int main() {
 	return 0;
 }
 
-// 输出
+// outout
 // max(1,2.5) = 2.5
 ```
-可以看到在此例中，我们只填写了一个类型参数，因为类型`B`会自动推导成`float`。没错，类型推导是可以部分禁用的！
-另一种解决方案就是完全让编译器计算类型。怎么计算呢，C++11提供了`auto`和`decltype`。`auto`可以计算变量的类型，`decltype`可以计算表达式的类型，用法如下：
+As you can see in this example, we only filled in one type parameter, because type `B` is automatically deduced to `float`. Yes, type derivation can be partially disabled!
+Another solution is to let the compiler calculate the type entirely. How to calculate it, C++11 provides `auto` and `decltype`. `auto` calculates the type of a variable, and `decltype` calculates the type of an expression, as follows:
 ```cpp
-auto a=1; // a被推导成int类型
-auto b=1.5; // b被推导成double类型
-decltype(a+b) //结果是double类型
+auto a=1; // a is derived as type int
+auto b=1.5; // b is derived as type double
+decltype(a+b) //the result is type double
 ```
-也就是可以将返回值置为`auto`，然后让编译器决定返回类型
+That is, you can set the return value to `auto` and let the compiler decide the return type
 ```cpp
 template <typename A,typename B>
 auto max(A a, B b) {
@@ -170,20 +172,20 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // max(1,2.5) = 2.5
 ```
-假如编译器只支持C++11的话，会麻烦一点，不仅要前置`auto`，在函数头后还要使用`decltype`来计算返回类型，这个特性称为**尾返回推导。**
+If the compiler only supported C++11, it would be a bit tricky to not only front `auto`, but also use `decltype` after the function header to compute the return type, a feature known as **tailed return derivation.**
 ```cpp
 template <typename A,typename B>
 auto max(A a, B b)->decltype(a + b) {
 	return a > b ? a : b;
 }
 ```
-这里`decltype`里面写的是
-函数模板暂时放一放，我们来看一看类模板是怎样的。
-### 类模板
-和函数模板一样，类模板也至少包含一个泛型参数，这个泛型参数的作用域是整个类，也就是说可以使用这个泛型参数定义成员变量和成员函数。
+Here `decltype` is written inside the
+Let's put the function templates aside for now, and let's take a look at what the class template look like.
+### Class template
+Like function templates, class templates contain at least one generic parameter that is scoped to the entire class, meaning that member variables and member functions can be defined using this generic parameter.
 ```cpp
 template <typename T>
 class Result {
@@ -207,14 +209,14 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // Result(data = 9527, code = 0, reason = success)
 ```
-可以看到，类模板和普通类类似，普通类有的它都有——成员函数，成员变量，构造函数等等，值得一说的依然是这个泛型参数`T`。上例是SDK中常见的数据类，用于指示操作是否成功并且必要时返回操作结果。对于返回一般数据类型，这个类已经足够了，但是假如我们的某个接口无返回值，按照传统即返回`void`类型，问题出现了。`data`的实际类型是`void`，但是我们找不到任何值来初始化它。更进一步，返回`void`的时候，我们根本不需要`data`这个成员变量。为了解决类似这种问题，模板提供了特化。
-### 特化和偏特化
-**特化就是用特定类型替代泛型参数重新实现类模板或者函数模板，它依赖于原始模板**。如上例中，我们已经有了原始模板类`Result<T>`，为了解决`void`不能使用的情况，我们需要为`void`类型重新定义一个`Result`，即`Result<void>`，则`Result<void>`就称为`Result<T>`的一种特化，原来的`Result<T>`称为原始模板类。这样的特化版本可以有很多个，一个类型就是一个特化版本，它**完美融合了通用性和特殊性两个优势**。当实例化过程中，如果实例化类型和特化类型一致，则实例化将使用特化的那个类（函数）来完成，如下面的例子
+As you can see, the class template is similar to a regular class in that it has everything that a regular class has - member functions, member variables, constructors, etc. It's still worth mentioning the generic parameter `T`. The above example is a common data class in the SDK, used to indicate whether an operation was successful or not and to return the result of the operation if necessary. For returning normal data types, this class is sufficient, but if one of our interfaces does not have a return value, and traditionally returns a `void` type, a problem arises. The actual type of `data` is `void`, but we can't find any value to initialize it. Further, when returning `void`, we don't need the `data` member variable at all. To solve problems like this one, templates provide specializations.
+### Specialization and partial specialization
+**Specialization is the reimplementation of a class template or function template with a specific type instead of a generic parameter, which depends on the original template**. As in the above example, we already have the original template class `Result<T>`, in order to solve the case where `void` cannot be used, we need to redefine a `Result` for the `void` type, i.e., `Result<void>`, then `Result<void>` is known as a kind of specialization of `Result<T>` and the original ` Result<T>` is called the original template class. There can be many such specializations, and a type is a specialization which **perfectly combines the advantages of both generality and specificity**. When instantiation is done, if the instantiated type and the specialization type are the same, the instantiation will be done using that class (function) of the specialization, as in the following example
 ```cpp
-// Result定义保持不变，新增特化版本
+// Result definition remains unchanged, new specialization version added
 template <>
 class Result<void>{
 	int code;
@@ -235,17 +237,17 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // void = Result(code = 0, reason = success)
 // int = Result(data = 9527, code = 0, reason = success)
 ```
-可以看到，当实例化为`int`类型时，使用的是原始的模板类。而当实例化为`void`类型时，使用的是特化的版本。
-除了特化，还有**偏特化**。偏特化和特化很像，就是对类型进行一个更窄的限定，使之适用于某一类类型，如`const`，指针，引用等。或者对有多个泛型参数的类进行部分特化。
-特化和偏特化是对模板特殊类型的补充，解决的是模板实现上的一些问题。很多时候如果通用模板不好实现，可以考虑使用特化。当然，特化版本越多，模板的维护成本就越高，这时候就该考虑是否是设计上存在缺陷了。
-### 类型限定
-C++模板的强大不仅仅表现在对类型的操作上，有时候为了防止我们的类被滥用，我们还需要对这些能力做一些限定，比如禁止某些特定的类型实例化。
-在上面的例子中，假设我们规定`Result`必须返回实际的数据，禁止`void`实例化该怎么做呢？容易想到的是，我们首先需要一种方法**判断实例化时的类型是否是特定类型**，然后需要在**实例化类型是禁止类型时告诉编译器编译失败**。所有的这些，标准库`type_traits`都提供了支持。它提供了一系列工具来帮助我们识别类型参数，如数字，字符串，指针等等，也提供了一些其他工具辅助这些类型参数工具完成更复杂的功能。
-此例中，我们希望实例化类型不能是`void`，经过查找`type_traits`，我们发现有个`is_void`的类，它有个`value`常量，这个常量在类型参数为`void`是为`true`，否则为`false`。当然有了判定方法还不够，我们还需要在类型不匹配时让编译器报错的方法，恰好，我们有`enable_if_t`。它有两个类型参数，第一个是布尔表达式，第二个是类型参数。当表达式为真时，类型参数才有定义，否则编译失败。所以为了完成禁止`void`实例化的功能，我们需要借助两个工具，`is_void`判断类型参数是否是`void`,`enable_if_t`完成布尔表达式到类型参数的转换。综上，让我们来看看实现：
+As you can see, when instantiated to the `int` type, the original template class is used. And when instantiated as a `void` type, the specialization version is used.
+In addition to specialization, there is also **preferential specialization**. A partial specialization is much like a specialization in that it is a narrower qualification of the type to make it apply to a certain class of types, such as `const`, pointers, references, etc. Or partial specialization for classes with multiple generic parameters.
+Specialization and partial specialization are complementary to template special types and solve some problems with template implementation. Very often if the generic template is not well implemented, you can consider using specialization. Of course, the more versions of specialization, the higher the maintenance cost of the template, it is time to consider whether there is a design flaw.
+### Type qualification
+The power of C++ templates is not only in the manipulation of types, but sometimes in order to prevent our classes from being abused, we need to qualify these abilities, such as disallowing the instantiation of certain specific types.
+In the example above, suppose we specify that `Result` must return actual data, what would be the best way to prohibit `void` instantiation? It's easy to think that we would first need a way to **determine whether the type at instantiation is of a particular type**, and then we would need to tell the compiler to fail to compile if **the instantiated type is a forbidden type**. All of this is supported by the standard library `type_traits`. It provides a number of tools to help us recognize type parameters such as numbers, strings, pointers, etc. It also provides a number of other tools to assist these type parameter tools with more complex functions.
+In this case, we want the instantiation type not to be `void`, and after looking up `type_traits`, we find that there is a class `is_void`, which has a `value` constant that is `true` if the type parameter is `void`, and `false` otherwise. Of course it's not enough to have a determination method, we also need a way for the compiler to report an error if the types don't match, and as it happens, we have `enable_if_t`. It has two type parameters, the first is a boolean expression and the second is a type parameter. The type parameter is defined when the expression is true, otherwise the compilation fails. So in order to accomplish the function of disabling `void` instantiation, we need to use two tools, `is_void` to determine whether the type parameter is `void` or not, and `enable_if_t` to accomplish the conversion from boolean expression to type parameter. To summarize, let's take a look at the implementation:
 ```cpp
 template <typename T>
 class Result {
@@ -264,10 +266,10 @@ public:
 	}
 };
 ```
-例中，第3行和第8行都用到了类型限定，其实我们只需要在构造函数是对`T`限定就可以了。当用`void`来实例化`Result`时，将无法通过编译。
-### 其他问题
-C++模板有两方面的问题要解决，一方面是本身模板相关的问题，而另一方面就是和其他特性一起工作。如C++11引入了右值引用，但是右值引用通过参数传递以后会造成引用坍缩，丢失其右值引用的性质，表现得像一般引用类型，为了解决这个问题，C++提供了`std::move`工具。这对于普通函数是没问题的，但是假如这是一个模板函数呢？C++同样提供了**完美转发**的解决方法。
-所谓完美转发，就是让右值引用保持右值引用，左值引用也保持左值引用。它需要配合万能引用一起使用。万能引用和右值引用很相似，只不过**万能引用类型是不确定的，在编译期才能确定**。看下面的例子
+In the example, lines 3 and 8 both use type qualification, when in fact we only need to qualify `T` in the constructor. When instantiating `Result` with `void`, it will not compile.
+### Other issues
+There are two aspects of C++ templates that need to be addressed, one is the template-related issues and the other is working with other features. For example, C++11 introduced right-valued references, but right-valued references passed through parameters can cause references to collapse, losing their right-valued nature and behaving like normal reference types. This is fine for normal functions, but what if it's a template function? C++ also provides the **perfect forwarding** solution.
+Perfect forwarding means that a right-valued reference stays a right-valued reference, and a left-valued reference stays a left-valued reference. It needs to be used in conjunction with universal references. Universal references are very similar to right-valued references, except that the **universal reference type is indeterminate and can only be determined at compile time**. Look at the following example
 ```cpp
 template <typename T>
 void test(T&& p) {
@@ -282,15 +284,15 @@ int main() {
 	return 0;
 }
 
-// 输出
+// output
 // p = 1
 // p = 1
 ```
-`T&&`是万能引用，因为它类型不确定，然后通过`std::forward<>`转发参数。可以看到在8，9行，我们成功传递给`test`左值和右值，并且也成功得到了预期结果，不需要为右值单独写函数来处理。模板的这个功能极大简化了函数的设计，对于API的设计来说简直就是救星。
-此外，函数模板还有重载的问题。通常来说普通函数的优先级会高于函数模板的优先级，函数模板之间越特殊的会优先匹配等等。这些问题随着对模板了解的深入，会慢慢出现，但是在学习初期没必要花费太多精力来了解这些特性，一切以实用为主。
-### 总结
-模板是C++中很大的一个课题，融合了类型系统，标准库，类等一系列的大课题。所以写出完美的模板代码需要首先对这些课题有较为完整的了解。其次由于模板对类型控制较为宽松，还需要开发者对模板的适用范围有全局的把控，禁止什么，对什么类型需要特殊化处理，都要考虑到位，稍不注意就会隐藏一个难以察觉的bug。
-总之就是一句话，模板是常学常新，常用常新的，需要在实践中学习，又要在学习中实践的东西，祝大家每次都有新收获！
-### 参考资料
+`T&&` is a universal reference because it is of indeterminate type, and then the arguments are forwarded through `std::forward<>`. As you can see in lines 8 and 9, we successfully pass the left and right values to `test` and also successfully get the expected result without having to write a separate function for the right value to handle it. This feature of templates greatly simplifies function design and is a lifesaver for API design.
+In addition, function templates have the problem of overloading. Generally speaking, the priority of ordinary functions will be higher than the priority of function templates, function templates between the more special will be preferred to match and so on. These problems with the depth of understanding of the template, will slowly appear, but in the early stages of learning there is no need to spend too much effort to understand these features, everything to the main practical.
+### Summary
+Templates are a big topic in C++, combining the type system, the standard library, classes, and a host of other big topics. So writing perfect template code requires a complete understanding of these topics. Secondly, because the template type control is more relaxed, but also need to developers on the scope of application of the template has a global control, what is prohibited, what types need to be specialization of the treatment, should be considered in place, a little inattention will hide a difficult to detect the bugs.
+In short, it is a word, the template is always learning, often used often new, need to learn in practice, but also in the learning of things in practice, I wish you every time there are new gains!
+### Reference
 
 1. [type_traints](https://en.cppreference.com/w/cpp/meta#Type_traits)
