@@ -1,6 +1,6 @@
 ---
-title: "现代C++学习指南-标准库"
-description: "现代C++学习指南-标准库"
+title: "Modern C++ Study Guide - Standard Library"
+description: "Modern C++ Study Guide - Standard Library"
 isCJKLanguage: false
 
 lastmod: 2022-07-20T22:15:05+08:00
@@ -11,53 +11,53 @@ author: hongui
 categories:
  - C++
 tags:
- - 学习指南
+ - Study guide
  - C++
 
 toc: true
 draft: false
-url: post/现代C++学习指南-标准库.html
+url: post/Modern C++ Study Guide - Standard Library.html
 ---
 
-> 在[上一章](https://www.yuque.com/docs/share/adb5b1e4-f3c6-46fd-ba4b-4dabce9b4f2a?# 《现代C++学习指南-类型系统》)我们探讨了C++的类型系统，并提出了从低到高，又从高到低的学习思路，本文就是一篇从高到低的学习指南，希望能提供一种新的视角。
-<!--more-->
-### 什么是标准库
-编程语言一般分为两个部分，一部分是语法部分，如上一章的类型系统，另一部分则是用这套语法完成的预定义的工具集，如本文的主题——标准库。标准库是一堆我们写代码时直接可以用的代码，就像是我们提前写好的一样，不仅如此，标准库还是跨平台的，还是经过工业级测试的，所以标准库有着靠谱，安全的特点。
-C++标准库包括很多方面，有类`vector`、`string`等,有对象`std::cin`，`std::cout`等，还有函数`move`，`copy`等，所以一般按功能来对它们分类
+> In [the previous chapter](https://www.yuque.com/docs/share/adb5b1e4-f3c6-46fd-ba4b-4dabce9b4f2a?# Modern C++ Study Guide - The Type System) we explored the type system of C++ and proposed a low-to-high and again high-to-low study idea. This article is a study guide from high to low, and hopefully provides a new perspective.
 
-- 容器类
-- 算法类
-- 智能指针
-- 线程相关
-- 其他
+### What is standard library
+Programming languages are generally divided into two parts, one is the syntax part, such as the type system in the previous chapter, and the other part is the predefined toolset accomplished with this syntax, such as the subject of this article - the standard library. The standard library is a bunch of code that we can use directly when we write code, as if we had written it in advance. Not only that, the standard library is also cross-platform, or industrial-grade tested, so the standard library has the characteristics of reliability and security.
+The C++ standard library includes many aspects, including classes `vector`, `string`, objects `std::cin`, `std::cout`, and functions `move`, `copy`, etc., so they are generally categorized according to their functions.
 
-当然，这些还不是全部，标准库是在不断扩充和完善的，学习标准库的宗旨也应该是学习它们的使用场景，而不是深入用法。比如容器类中就有很多功能类似的类，不同的业务场景有不同的选择。通过对它们的了解，我们更容易写出高效，简洁的代码。
-### 容器类
-容器类就是帮助管理一组数据的类，根据实现方式的不同，分为有序列表，无序列表和映射。
-有序列表中的有序是指，数据组保存在一块连续的内存区域里，可以通过插入时的索引直接定位到原数据。因为数据是按顺序存入的，所以中途假如需要删除或者新增数据，在操作位置右边的数据都需要移动，操作的代价就比较大。由此也可看出它们的优势是顺序插入和尾部修改，还有直接查找，这方面的代表就是`array`，`vector`。
-`array`是对原始数组的封装，并且解决了传递数组变成指针这样的问题，但是缺点是它的大小是固定的，适合用在数据量已知的情况。而`vector`又是对`array`的增强，不仅能完成所有`array`的操作，并且大小可变，所以绝大部分情况下，选择`vector`都是理想的选择。
-![](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658015351475-f6a5189b-7331-4173-80b4-1a1f83f25f7d.jpeg)
-无序列表的元素是单独存储的，相互之间用指针来查找相邻元素，由于指针可以轻易修改指向的指，所以对相邻元素的修改就变得很快捷。同样的道理，查找相邻元素只能靠指针跳转，查找某个值需要从一个指针开始查找，一次跳转一条数据，直到找到目标或者没有数据为止。所以无序列表的优势是快速地删除和插入新数据，不适合查找，其代表有`list`，`forward_list`。显然，有序列表和无序列表是互补的，我们在实际项目中，应该**根据数据的操作来确定选择哪种容器。**
-![](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658015352400-93e48503-009d-41bb-89b1-4a50bc1ca3d1.jpeg)
+- Container
+- Arithmetic
+- Smart pointer
+- Thread
+- Other
 
-**映射则融合了有序列表和无序列表的优点，既可以快速插入和删除，又可以快速查找**。为了满足各种使用场景，C++提供了`map`，`multimap`，`unordered_map`，`unordered_multimap`。从名字上就能看出来它们的差别。为了直观，我直接列了一个表
+Of course, these are not all, the standard library is constantly expanding and improving, the purpose of learning the standard library should also be to learn their use scenarios, rather than in-depth usage. For example, there are many container classes with similar functionality, and there are different options for different business scenarios. Through their understanding, we are more likely to write efficient, concise code.
 
-|  | 是否排序 | 是否支持相同值 | 速度 |
+### Container
+A container class is a class that helps manage a set of data, and depending on how it is implemented, it is divided into ordered lists, unordered lists, and maps.
+Ordered in an ordered list means that the data set is stored in a contiguous area of memory, and can be directly located to the original data by the index at the time of insertion. Because the data is stored sequentially, if you need to delete or add data in the middle of the process, the data on the right side of the operation position will need to be moved, and the operation will be more expensive. It can also be seen that their advantages are sequential insertion and tail modification, as well as direct lookup, which is represented by `array` and `vector`.
+`array` is the encapsulation of the original array, and solves the problem of passing arrays as pointers, but the disadvantage is that its size is fixed, and it is suitable for use in cases where the amount of data is known. `vector` is an enhancement of `array` that not only does all the operations of `array`, but also has a variable size, so in most cases, `vector` is the ideal choice.
+! [](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658015351475-f6a5189b-7331-4173-80b4-1a1f83f25f7d.jpeg)
+The elements of the unordered list are stored separately, with each other using pointers to find neighboring elements, because pointers can be easily modified to point to the finger, so the modification of neighboring elements becomes very fast. By the same token, finding neighboring elements can only be done by pointer jumps, find a value need to start looking from a pointer, a jump a piece of data, until the target is found or no data until. So the advantage of unordered lists is to delete and insert new data quickly, not suitable for lookup, which is represented by `list`, `forward_list`. Obviously, ordered and unordered lists are complementary, and we should **determine which container to choose based on the operation of the data in the actual project.**
+
+A **map, on the other hand, combines the advantages of both ordered and unordered lists, allowing for fast insertion and deletion as well as fast lookups**. To fulfill various usage scenarios, C++ provides `map`, `multimap`, `unordered_map`, `unordered_multimap`. You can tell the difference between them by their names. To visualize it, I've made a direct table
+
+|  | Sorted or not | Whether the same value is supported or not | speed |
 | --- | --- | --- | --- |
 | unordered_map | ❌ | ❌ | ❤️❤️❤️❤️ |
 | map | ✅ | ❌ | ❤️❤️ |
 | multimap | ✅ | ✅ | ❤️ |
 | unordered_multimap | ✅ | ✅ | ❤️❤️❤️ |
 
-映射存储的是两个值，不同的类型实现方式不一样。由于`map`是需要排序的，所以通常它的实现是一种平衡二叉树，键就是它排序的依据。
+A map stores two values, which are implemented differently for different types. Since `map` is required to be sorted, it is usually implemented as a kind of balanced binary tree, with the keys being the basis for its sorting.
 ![](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658015140161-206f2bf1-345d-4fb7-9b6d-50fbfcb81b2e.jpeg)
-而`unordered_map`是不需要排序的，所以它的实现通常是哈希表，即根据哈希函数的确定索引位置继而确定存储位置。
+An `unordered_map` does not need to be ordered, so its implementation is usually a hash table, i.e., it determines the index location and then the storage location based on the hash function.
 ![](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658015142087-4460ed23-40be-441e-8649-c40eb78dfc9a.jpeg)
-综上，容器类提供了一种操作多个同类型数据的接口，开发者通过对容器类方法的调用，可以实现对容器内数据的增删改查。大部分情况下，`vector`都是靠谱的选择，它提供了全功能的数据操作接口，支持动态长度，索引查询，并且简单高效。如果需要频繁地插入或者删除操作，也可以考虑`list`或者`forward_list`。`map`可以让数据保持有序，需要更快的速度而不是排序的话`unorderer_map`是更好的选择，如果相同值会出现多次就可以使用对应的`multi`版本。另外容器类也是很好的数据结构学习资源，C++的容器类几乎提供了数据结构中所有的形式，对数据结构越熟悉选择的容器类就越完美。
-### 算法
-之所以将算法放在容器类后面，是因为算法大部分是对容器类操作的加强，算法都定义在`algorithm`文件头里。这些算法都是短小精悍的，可以大大增加代码可读性，并且妥善处理了很多容易遗忘的边界问题。功能上可以分为增删改查几种操作，可以在实际有需要的时候在查看文档，具体可以参阅[这里](https://cplusplus.com/reference/algorithm/)
-### 智能指针
-很早以前，我对智能指针的态度不是很好。因为刚开始学习C++时我就知道，不能单独使用指针，要把指针封装在类里，利用类的构造函数和析构函数管理指针，也就是`RAII`。最开始我以为这就够了,直到我遇到下面这种情况
+In summary, the container class provides an interface to manipulate multiple data of the same type, and the developer can realize the addition, deletion, modification and checking of the data inside the container by calling the container class methods. In most cases, `vector` is a reliable choice, it provides a full-featured data manipulation interface, supports dynamic length, indexed queries, and is simple and efficient. If frequent insertion or deletion operations are required, you can also consider `list` or `forward_list`. `map` keeps data organized, `unorderer_map` is a better choice if you need more speed than sorting, and `multi` can be used if the same value occurs more than once. Container classes are also a good resource for learning about data structures. C++'s container classes provide almost all forms of data structures, and the more familiar you are with data structures, the better container class you can choose.
+### Arithmetic
+The reason why the algorithms are placed after the container classes is that the algorithms are mostly enhancements to the container class operations, and the algorithms are defined in the `algorithm` file header. These algorithms are short and concise, which can greatly increase code readability and properly handle many easily forgotten boundary issues. Functionality can be divided into add, delete, change and check several operations, you can actually have the need to check the documentation, you can refer to [here](https://cplusplus.com/reference/algorithm/)
+### Smart pointer
+A long time ago, I wasn't very nice about smart pointers. Because when I first started learning C++ I knew that you can't use pointers alone, you have to encapsulate them in a class and use the class constructor and destructor to manage the pointers, also known as `RAII`. At first I thought that was enough, until I came across the following situation
 ```cpp
 public:
     Ptr():p{ new int } {}
@@ -76,38 +76,38 @@ private:
 };
 
 void use(Ptr p) {
-    //传进来的是复制构造出来的p',函数返回后p'被销毁啦，两个指针指向的地址被回收，外面的p指针成为了野指针
+    //Passed in is a copy of the constructed p', after the function returns p' is destroyed, the two pointers point to the address is reclaimed, outside the p pointer becomes a wild pointer.
 }
 int main() {
     Ptr p;
     p.set(1);
-    use(p); //p按值传递，调用了Ptr的复制构造函数，构造出了新对象p',它的指针和p的指针指向同一个地方
-    std::cout << p.get() << std::endl; //p已经被销毁了，访问p的地址非法
+    use(p); //p is passed by value, and the copy constructor of Ptr is called, constructing a new object p', whose pointer points to the same place as p's pointer
+    std::cout << p.get() << std::endl; //p has been destroyed, access to p's address is illegal
     return 0;
 }
 ```
-调用`use`时，变量`p`被拷贝，也就出现了两个指针同时指向一块内存地址的情况。`use`函数执行完后，它的参数`p`被回收。也就是调用了`Ptr`的析构函数，也就是两个指针指向的地址被回收。所以24行调用`get`读取那个已经被回收了的地址就是非法操作，程序崩溃。
-这可能是新手比较常遇到的一个问题，当然，解决这个问题也很简单，还用不到智能指针，只需要将函数`use`的参数改为引用类型就可以了，因为引用只是别名，不会产生新的指针，这也是我在类型系统篇中极力推荐引用为首选参数类型的原因之一。对于此例，数据不大，直接重写复制构造函数，重新申请一块内存也是一种思路。
-此例中用到Ptr的地方只有一个，实际项目中Ptr往往需要用到很多次，我们不能保证不会出现忘记使用引用类型的情况，这种情况下重新申请内存也不适用，所以这个时候就需要智能指针来帮忙了。
-现在思考另一种情况，某些操作我们不得不暴露出我们的指针供外部使用，随着业务的嵌套和调用链增加，很多时候会忘记或者不确定在什么时候调用`delete`释放内存。这也是用智能指针的一个场景。以上两种情况都是需要分享指针，对应智能指针中的`shared_ptr`。
-`shared_ptr`顾名思义，它可以帮助开发者完成指针共享的问题，并且完美解决提前释放，不知何时释放，谁负责释放的问题。它的对应关系是一对多，一个实际的内存可以被多个`shared_ptr`共享
+When `use` is called, the variable `p` is copied, and there is a situation where two pointers point to a single memory address at the same time. After the `use` function is executed, its argument `p` is reclaimed. That is, the destructor of `Ptr` is called, which means that the addresses pointed to by the two pointers are reclaimed. So the call to `get` on line 24 to read the reclaimed address is illegal and the program crashes.
+This is probably one of the more common problems encountered by novices, of course, to solve this problem is also very simple, you can not use smart pointers, you only need to change the parameter of the function `use` to a reference type, because the reference is just an alias, it will not generate new pointers, which is one of the reasons why I highly recommend references as the preferred parameter type in the type system chapter. For this example, the data is not large, directly rewrite the copy constructor, reclaim a piece of memory is also an idea.
+This example uses Ptr in only one place, the actual project Ptr often need to be used many times, we can not guarantee that we will not forget to use the reference type of the situation, in this case re-apply for memory is not applicable, so this time you need to smart pointers to help.
+Now think about another scenario, where we have to expose our pointers for external use for certain operations, and as the nesting and call chaining of operations increases, many times we forget or are unsure of when to call `delete` to free the memory. This is also a scenario where smart pointers are used. Both of these scenarios require shared pointers, which correspond to `shared_ptr` in smart pointers.
+As the name `shared_ptr` suggests, it helps developers to accomplish the problem of sharing pointers, and perfectly solves the problems of releasing them early, not knowing when to release them, and who is responsible for releasing them. It corresponds to a one-to-many relationship, where an actual memory can be shared by more than one `shared_ptr`.
 ![](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658146077740-b934d6d5-fc6e-4cff-9863-4e263b5c3848.jpeg)
-另外一种场景是我们希望**自始至终某个指针某个时刻只属于一个对象**，外部想要使用它要么通过拥有该指针的对象方法，要么把指针的所有权转移到自己身上，这种场景对应智能指针中的`unique_ptr`。
+Another scenario is that we want **a pointer to belong to only one object at a time** from the beginning, and an external party wants to use it either through the object method that owns the pointer or by transferring ownership of the pointer to itself, which corresponds to `unique_ptr` in smart pointers.
 ![](https://cdn.nlark.com/yuque/0/2022/jpeg/29458474/1658147416713-1b6a7866-1cd8-4be6-b2dc-bdfe41db69d6.jpeg)
-`unique_ptr`的对应关系是一对一，无论哪个时刻，只能有一个管理者拥有指针，也就只能由它负责释放了。假如想转移这种对应关系，只能通过`std::move`操作，不过这个操作之后，原先对象的指针就失效了，它也不再负责管理，所有的任务移交给了新的对象。这种特性特别适合资源敏感型的应用。
-### 线程库
-除了内存，线程是开发中另一个重要的课题。线程的难点在于不仅要管理线程对象，还要管理线程对象管理的资源，并且保证线程间数据同步。当然标准库已经做得足够好了，我们需要理解的是使用场景的问题。线程库主要包括线程对象`thread`，条件对象`condition_variable`，锁对象`mutex`。
-使用`thread`可以很方便地把程序写成多线程，只需要三步：
+The correspondence of `unique_ptr` is one-to-one; at any given moment, only one manager can have the pointer, and it is the only one responsible for releasing it. If you want to transfer this correspondence, you can only do so with the `std::move` operation, but after this operation, the pointer to the original object is invalidated, and it is no longer responsible for managing it; all the tasks are transferred to the new object. This feature is particularly suitable for resource-sensitive applications.
+### Thread
+Besides memory, threads are another important topic in development. The difficulty with threads is that not only do you have to manage the thread objects, but you also have to manage the resources managed by the thread objects and ensure data synchronization between threads. Of course the standard library has done a good enough job, we need to understand is the problem of the use of the scene. The thread library consists of a thread object `thread`, a condition object `condition_variable`, and a lock object `mutex`.
+Using `thread` makes it easy to write programs as multithreaded in three steps:
 ```cpp
-void plus(int a,int b){ //第一步：定义线程中要运行的函数
+void plus(int a,int b){ //Step 1: Define the function to be run in the thread
     std::cout<<"running at sub thread"<<std::endl;
     std::cout<<"a + b = "<<a+b<<std::endl;
 }
 
 int main(){
-    std::thread thread{plus,1,1}; //第二步，定义std::thread对象，将函数作为参数
+    std::thread thread{plus,1,1}; //Step 2:define the std::thread object, taking the function as a parameter
     std::cout<<"continue running at main thread"<<std::endl;
-    thread.join(); //第三步调用线程对象的join函数或者detach函数
+    thread.join(); //Step 3:call the join function or detach function of the thread object
     std::cout<<"sub thread finished!"<<std::endl;
 }
 //输出
@@ -116,12 +116,12 @@ int main(){
 // 	a + b = 2
 // 	sub thread finished!
 ```
-难点在线程间通信，也就是解决两个问题
+The difficulty is inter-thread communication, that is, solving two problems
 
-1. 线程1更新了变量v的值
-1. 线程2马上能读取到正确的变量v的值，即线程1更新的那个最新值
+1. thread 1 updates the value of variable v
+2. thread 2 immediately reads the correct value of variable v, i.e., the latest value updated by thread 1.
 
-为了协调这两个过程，就出现了锁对象`mutex`和条件对象`condition_variable`。锁对象`mutex`保证变量按照正确的顺序更改。条件对象`condition_variable`保证更改能被其他线程监听到。
+In order to coordinate these two processes, there is a lock object `mutex` and a condition object `condition_variable`. The lock object `mutex` ensures that variables are changed in the correct order. The condition object `condition_variable` ensures that the changes are heard by other threads.
 ```cpp
 int a,b;
 bool ready = false;
@@ -130,13 +130,13 @@ std::condition_variable con;
 
 void plus() {
     std::cout << "running at sub thread" << std::endl;
-    //因为我们要读取ready的最新值，所以要用锁保证读取结果的有效性
+    //Because we want to read the latest value of ready, we need to use a lock to ensure the validity of the read result
     std::unique_lock<std::mutex> guard{ mux };
     if (!ready) {
-        //数据没准备好，休息一下！
+        //The data wasn't ready, take a break!
         con.wait(guard); 
     }
-    //这里就可以正确读变量a,b了
+    //Here you can read the variables a,b correctly
     std::cout << "a + b =" << a + b << std::endl;
 }
 
@@ -148,26 +148,26 @@ int main() {
     std::cout << "input b = ";
     std::cin >> b;
     {
-        //数据准备好了，该通知子线程干活了，用大括号是因为想让锁因为guard的销毁即使释放，从未保证plus里面能重新获得锁
+        //Once the data is ready, it's time to notify the child threads to do their work, using curly braces because you want the lock to be released even if the guard is destroyed, and there is no guarantee that the lock will be reacquired inside PLUS.
         std::unique_lock<std::mutex> guard{ mux };
-        //更新数据
+        //Updated data
         ready = true;
-        //通知
+        //notification
         con.notify_all();
     }
     thread.join();
     std::cout << "sub thread finished!" << std::endl;
 }
 ```
-多线程另一个需要注意的问题就是死锁。死锁的前提是有两个锁
+Another issue to be aware of with multithreading is deadlocks. Deadlocks are based on the premise that there are two locks
 
-1. 线程1得到了锁a，还想得锁b
-1. 线程2得到了锁b，还想得锁a
+1. thread 1 has lock a and wants lock b
+2. thread 2 has lock b, and wants lock a.
 
-然后，再加上一个前提：某一时刻，只有一个线程能拥有某个锁，就不难得出以下结论：线程a，b除非某一个放弃已得的锁，不然两个线程都会因为没得到需要的锁而一直死等，形成死锁。同时解决死锁的思路也呼之欲出：既然一个得了a，一个得了b，而锁同一时间只能被一个线程得到，那么所有线程都按先得a，再得b的顺序来就不会有锁被占用的问题了。另一个思路则可以从放弃上入手，既然都得不到，那么接下来的任务也做不了，不如直接放弃已经得到的，所以可以考虑使用`timed_mutex`。
-### 其他
-还有很多常用的库，如字符串`string`，时间`chrono`，还有在定义函数变量时常用的`functional`,异常`exception`，更多的内容可以在[cplusplus](https://cplusplus.com/reference/)找的参考。
-### 总结
-总的来说，标准库提供了一个展现C++语言能力的平台：帮助开发者更好更快完成开发任务的同时，还能启迪开发者实现更好的抽象和实践。如我就从标准库中学到了更规范地定义函数参数，更好的封装，以及其他好的思路。学习标准库不仅更好地掌握了语言本身，还掌握了更全面地分析问题，解决问题的方法，是值得花费一段时间学习的。
-容器类是几乎所有项目都会用到的，也是比较好掌握的，主要可以从数据结构方面对照学习；智能指针则是处理指针问题的好帮手；线程相关的库是比较难掌握的，关键是要想明白使用场景和极端情况下的边界问题。很多时候边界问题可能不那么直观。如线程要求获得锁的情况就分为：锁空闲，锁被其他线程占有，锁被自己占有。不同的边界对于不同的锁，预期结果也是不同的，只有在明确场景的情况下，才能更好地理清锁的关系，从而解决好问题。
-最好的学习还是在实践中主动使用。对于我，通常在遇到新问题的时候会先查查标准库有没有相应的库，有的话就是学习这个库的好时机。可以先概览库的定义和解决的问题，然后分析它提供的类，函数，对象等，再将自己的理解转换为项目中的代码，最后在实际效果中检验和修正想法，完成库的学习。
+Then, add a premise: at a certain time, only one thread can have a certain lock, it is not difficult to conclude that: thread a, b unless one of the locks abandoned, otherwise both threads will not get the locks needed to wait for a deadlock. At the same time, the idea of solving the deadlock is also out: since a got a, a got b, and the lock at the same time can only be obtained by a thread, then all the threads according to the order of the first to get a, and then to get b, there will not be a lock is occupied problem. Another way to think about this is to start with abandonment. Since neither of them can get it, the next task can't be done, so you might as well just abandon the ones you've already got, so consider using `timed_mutex`.
+### Other
+There are also many commonly used libraries, such as string `string`, time `chrono`, as well as `functional`, exception `exception`, which are commonly used when defining function variables, and more can be found in [cplusplus](https://cplusplus.com/reference/) for reference.
+### Summary
+In general, the Standard Library provides a platform to show the power of the C++ language: it helps developers to accomplish their development tasks better and faster, and at the same time, it inspires developers to realize better abstractions and practices. For example, I have learned to define function parameters in a more standardized way, better encapsulation, and other good ideas from the library. Learning the standard library not only better grasp of the language itself, but also mastered a more comprehensive way to analyze the problem, problem-solving approach, it is worth spending a period of time to learn.
+Container class is almost all projects will use, but also better to master, mainly from the data structure against the learning; smart pointers is a good helper to deal with the pointer problem; thread-related libraries is more difficult to master, the key is to understand the use of scenarios and extreme cases of boundary problems. Many times boundary issues may not be so intuitive. For example, the thread request to obtain the lock is divided into the following cases: the lock is idle, the lock is occupied by other threads, and the lock is occupied by itself. Different boundaries for different locks, the expected results are different, only in the case of clear scenarios, in order to better clarify the relationship between locks, so as to solve the problem.
+The best way to learn is to actively use it in practice. For me, when I encounter a new problem, I usually check the standard library first to see if there is a corresponding library, and if there is, it's a good time to learn it. You can start with an overview of the definition of the library and the problem it solves, then analyze the classes, functions, objects, etc. it provides, then convert your understanding into code in the project, and finally test and revise your ideas in the real world to complete the learning of the library.
