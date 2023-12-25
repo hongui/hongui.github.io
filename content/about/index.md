@@ -24,3 +24,4 @@ url: about.html
 # 联系方式
 <p>QQ:<i class="iconfont icon-qq-fill">632518410</i></p>
 <p>E-Mail:<i class="iconfont icon-mail">honguilee@163.com</i></p>
+<p>[Buy me a coffee](https://www.buymeacoffee.com/bravebuffalo)</p>
