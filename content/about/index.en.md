@@ -22,6 +22,6 @@ Love programming, love being alone
 - JavaScript
 - HTML/CSS
 # Contact me
-<p>QQ:<i class="iconfont icon-qq-fill">632518410</i></p>
-<p>E-Mail:<i class="iconfont icon-mail">honguilee@163.com</i></p>
-<p>[Buy me a coffee](https://www.buymeacoffee.com/bravebuffalo)</p>
+QQ:632518410<br>
+<honguilee@163.com><br>
+[Buy me a coffee](https://www.buymeacoffee.com/bravebuffalo)
