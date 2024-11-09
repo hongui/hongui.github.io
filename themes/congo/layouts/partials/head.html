@@ -143,4 +143,8 @@
   {{ if templates.Exists "partials/extend-head.html" }}
     {{ partial "extend-head.html" . }}
   {{ end }}
+
+  <!-- ads -->
+  {{ partial "google/ads" . }}
+
 </head>
