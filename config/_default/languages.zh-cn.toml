@@ -12,7 +12,7 @@ title = "低头沉思"
   # mainSections = ["section1", "section2"]
   # description = "My awesome website"
 
-[author]
+[params.author]
   name = "低头沉思"
   image = "images/logo.png"
   headline = "记录生活所思所见"
