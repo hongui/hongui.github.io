@@ -26,6 +26,11 @@
   weight = 30
 
 [[main]]
+  name = "关于"
+  pageRef = "about"
+  weight = 40
+  
+[[main]]
   identifier = "search"
   weight = 99
   [main.params]
