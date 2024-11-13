@@ -6,7 +6,7 @@ date: 2023-05-09T22:14:38+08:00
 lastmod: 2023-05-09T22:14:38+08:00
 publishDate: 2023-05-09T22:14:38+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - OpenGLES
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Android-OpenGLES学习-画个颜色.html
 ---
 > 我们知道屏幕显示出内容是靠一个一个发光的RGB灯珠，而决定灯珠亮度的是一块内存区域，通过往这一块内存区域写入数据，我们就能在屏幕上观察到数据显示效果。这是个复杂又灵活的工作，为了方便完成这项工作，先驱们制定出了OpenGL标准，我们的故事也将从这里开始。
 

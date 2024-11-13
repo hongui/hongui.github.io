@@ -6,7 +6,7 @@ date: 2023-05-09T22:14:38+08:00
 lastmod: 2023-05-09T22:14:38+08:00
 publishDate: 2023-05-09T22:14:38+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - OpenGLES
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/learning opengles on the android-fill the window.html
 ---
 > We know that the screen displays content by emitting RGB lamp beads one by one, and the brightness of the lamp beads is determined by a memory area. By writing data to this memory area, we can observe the data display effect on the screen. This is a complex and flexible job. In order to facilitate this work, the pioneers developed the OpenGL standard, and our story will start from here.
 

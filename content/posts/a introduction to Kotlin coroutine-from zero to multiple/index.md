@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2021-03-30T19:10:30+08:00
 publishDate: 2021-03-30T19:10:30+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - 协程
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Kotlin协程-从一到多.html
 ---
 
 > 上一篇文章，我介绍了Kotlin协程的创建，使用，协作等内容。本篇将引入更多的使用场景，继续带你走进协程世界。

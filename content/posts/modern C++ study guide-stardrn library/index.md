@@ -16,7 +16,6 @@ tags:
 
 toc: true
 draft: false
-url: post/现代C++学习指南-标准库.html
 ---
 
 > 在[上一章](https://www.yuque.com/docs/share/adb5b1e4-f3c6-46fd-ba4b-4dabce9b4f2a?# 《现代C++学习指南-类型系统》)我们探讨了C++的类型系统，并提出了从低到高，又从高到低的学习思路，本文就是一篇从高到低的学习指南，希望能提供一种新的视角。

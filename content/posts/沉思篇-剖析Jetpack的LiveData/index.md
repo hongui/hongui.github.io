@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2021-03-23T18:14:09+08:00
 publishDate: 2021-03-23T18:14:09+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - 源码剖析
@@ -18,16 +18,15 @@ tags:
 
 toc: true
 draft: false
-url: post/沉思篇-剖析Jetpack的LiveData.html
 ---
 
 > 上一篇我们讲到了架构组件中的Lifecycle，由于缺少具体的运用，可能缺少直观的感受，今天我们就用Lifecycle实战一回，看看Lifecycle是怎样运用到LiveData中的。
 
-# LiveData的功能
+### LiveData的功能
 根据`LiveData`的类注释，我们可以知道，`LiveData`是一个实现了观察者模式的数据容器，并且是可感知生命周期的。由这个功能描述，我们就能知道`LiveData`是由两部分功能合并而来的，一部分是数据容器，一部分是响应生命周期。在阅读源码的时候，我觉得功能拆解是个很有用的手段，合理的功能拆解，就是有目的的省略，有助于快速理清功能实现逻辑。
 接下来，我将以这两个功能为突破点，逐一梳理`LiveData`的实现思路。
 <!--more-->
-## LiveData的数据容器功能
+#### LiveData的数据容器功能
 数据容器的概念相信大家不会陌生，几乎每种语言都会有他们的身影，开发者用它们来保存数据对象。由于应用场景的不同，出现了各种各样的数据容器，如`List`,`Set`这些是保存数据集的，`ThreadLocal`是保存线程私有数据的。那么`LiveData`是保存什么数据的呢，它是保存可观察数据的。
 对于数据容器的拆解，其实是有固定的模式可寻的，就是以添加数据为突破口，然后以数据流向为主线，逐步击破。所以我们就从`LiveData`添加数据的方法`setValue`开始分析。
 
@@ -37,7 +36,7 @@ url: post/沉思篇-剖析Jetpack的LiveData.html
 以上三步就是`LiveData`的数据更新过程，重点在于处理分发这个步骤上，在以后的项目中，我们可以借鉴这种思想，当然具体问题是需要具体分析的。
 在上面的步骤3中我们知道了观察者的`mActive`是决定`LiveData`响应生命周期的关键，那么接下来我们来看看这个状态是怎么更新的吧。
 
-## LiveData的生命周期感知
+#### LiveData的生命周期感知
 联系上一篇文章沉思篇-剖析JetPack的`Lifecycle`,我们知道`Lifecycle`是专业干介个的（生命周期感知）。同时文章也提到了`Lifecycle`三个很重要的抽象，`LifecycleOwner`，`Lifecycle`，`LifecycleObserver`，这是引入生命周期感知三个很好的突破口。
 
 - `LifecycleOwner`作为生命周期的动力源，是直接可以获得Lifecycle的，继而可以方便地读取状态和注册状态监听，由于出色的接口封装，不需要和其他类产生耦合，是个很好的引入对象。

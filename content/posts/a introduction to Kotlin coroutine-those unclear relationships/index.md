@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2021-03-26T18:50:29+08:00
 publishDate: 2021-03-26T18:50:29+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - 协程
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Kotlin协程-那些理不清乱不明的关系.html
 ---
 
 > Kotlin的协程自推出以来，受到了越来越多Android开发者的追捧。另一方面由于它庞大的API，也将相当一部分开发者拒之门外。本篇试图从协程的几个重要概念入手，在复杂API中还原出它本来的面目，以全新的角度带读者走进Kotlin协程世界。

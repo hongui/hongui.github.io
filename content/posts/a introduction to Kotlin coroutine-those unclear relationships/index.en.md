@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2021-03-26T18:50:29+08:00
 publishDate: 2021-03-26T18:50:29+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - Coroutine
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/A introduction to Kotlin coroutine-those unclear relationships.html
 ---
 
 > Kotlin's coroutines have been increasingly sought after by Android developers since its introduction. On the other hand, due to its huge API, it has also shut out a considerable number of developers. This article tries to start from a few important concepts of coroutines, in the complex API to restore its original face, to bring readers into the Kotlin coroutine world with a new perspective.

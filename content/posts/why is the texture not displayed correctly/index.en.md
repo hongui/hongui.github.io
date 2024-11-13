@@ -17,5 +17,4 @@ tags:
 
 toc: true
 draft: true
-url: post/Why is the texture not displayed correctly.html
 ---

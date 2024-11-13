@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/modern-c++-study-guide-type-system.html
 ---
 
 > In the previous post, we provided a directional guide, but what and how to learn was not developed in detail. This article will build on the previous article and focus on how to learn C++'s type system.

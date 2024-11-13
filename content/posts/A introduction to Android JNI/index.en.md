@@ -7,8 +7,7 @@ isCJKLanguage: false
 lastmod: 2021-09-12T21:34:45+08:00
 publishDate: 2021-09-12T21:34:45+08:00
 
-author: hongui
-originLink: https://mainroad-demo.netlify.app/post/basic-elements/
+author: "hongui"
 
 categories:
  - C/C++
@@ -19,13 +18,12 @@ tags:
 
 toc: true
 draft: false
-url: post/Android-JNI-development-introduction.html
 ---
 
-# What is JNI
+### What is JNI
 The full name of JNI is Java Native Interface, and as the name suggests, it's a programming method that solves the problem of Java and C/C++ calling each other. ***It really only solves two aspects of the problem, how to find and how to access.*** Figure out these two topics and we have learned JNI development.***It should be noted that JNI development involves only a small part of the C/C++ development knowledge, when we encounter a problem we first need to determine whether it is a C/C++ problem or a JNI problem, which can save a lot of time searching and locating.***
 
-# Look at function calls through the eyes of the JVM
+### Look at function calls through the eyes of the JVM
 We know that the Java program can not run alone, it needs to run on the JVM, but the JVM needs to run on the physical machine, so it is a very heavy task, both to deal with the Java code, but also to deal with a variety of operating systems, hardware and other issues. It can be said that understanding the JVM, you understand all of Java, including, of course, JNI. so let's start as a JVM to see how the Java code is running it (just rough content, omitted a lot of steps, in order to highlight the part we care about).
 
 Before running Java code, a JVM is started.After the JVM is started, some necessary classes are loaded.These classes contain a class called the main class, that is, a method containing a static member function with the function signature `public static void main(String[] args)`. Once the resources are loaded, the JVM calls the `main` method of the main class and starts executing Java code. As the code executes, one class relies on another, layer upon layer of dependencies that work together to complete the program's functionality. This is the approximate workflow of the JVM, you can say that the JVM is like a bridge, connecting the Java mountain and native mountain.
@@ -38,7 +36,7 @@ Having determined the scope, the next step is to determine the real target in th
 
 However, since I only need to determine where the pointer is pointing, can I just assign a value to the pointer instead of looking it up every time, which I don't know is tiring, but it's still time-consuming. Of course I'm satisfied with this kind of need. If you tell me directly, I won't look for it, and I'm happy to do so. Moreover, since you have found me, I don't need to lay down so many rules, all let go, you say it is I believe you it is. This is the dynamic registration of JNI.
 
-# JNI function registration
+### JNI function registration
 In the previous section, we learned about the origins of JNI function registration by incarnating the JVM and introduced two types of function registration. From the examples, we can also summarize the characteristics of the two registration methods
 
 | Registration Type | Advantages | Disadvantages
@@ -47,7 +45,7 @@ In the previous section, we learned about the origins of JNI function registrati
 | dynamic registration | fast running </br> no restriction on function name | complex implementation |
 
 So how exactly do you do it? Let's move on.
-## Static registration
+#### Static registration
 Although static registration is more restrictive, they are shallow rules that are easier to implement, so let's start with static registration first.
 
 Static registration has clear development steps
@@ -82,7 +80,7 @@ The above is an example of a JNI function declared on both ends, and it's not ha
 4. The first argument to a function is always of type `JNIEnv *`, and the second argument varies according to the type of the function; a method of type `static` corresponds to type `jclass`, otherwise it corresponds to type `jobject`. The type system will be expanded in detail later.
    
 Why Java method corresponds to C/C++ function, there will be two more parameters. We know that the JVM is multi-threaded, and our JNI methods can be called in any thread, so how to ensure that before and after the call JVM can find the corresponding thread, this is the role of the first parameter of the function, which is a kind of encapsulation of the environment of the thread, and the one-to-one correspondence with the thread, which means that you can not use a thread of the `JNIEnv` object in another thread. In addition, it is a window for C/C++ to access the Java world, and the vast majority of JNI development is dealing with `JNIEnv`.
-## Dynamic registration
+#### Dynamic registration
 Again following the development process, let's go through it step by step.
 We change the name of the `Java_me_hongui_demo_Test_jniString` function in the previous section to `jniString` (of course it's OK if we don't change it, there's no restriction after all), and the parameter list stays the same, and at this point, we find that the Java file reports an error saying that the local method is not implemented. Actually, we did implement it, just that the JVM can't find it. In order for the JVM to find it, we need to register it with the JVM.
 So how and where do you register, it seems everywhere and nowhere.
@@ -106,9 +104,9 @@ typedef struct {
 } JNINativeMethod. 
 ```
 There's a trick to writing a function where the correlation is from the Java side to the C/C++ side, in order of definition. The `name` is the name of the `native` function that corresponds to the Java side only, this is purely a Java side thing, whatever the name is on the Java side is the name here. The second `signature` represents the signature of the function, which consists of a list of parameters and a return value, such as `(I)Ljava/lang/String;`, this signature is related to both sides. First, the `native` method on the Java side defines the type of the parameter list and the return value, that is, it limits the form of the signature. Secondly, Java's data types need to be converted to C/C++ here, that is, the parameter list and return value need to be written in C/C++ form, which is related to C/C++. The last one, `fnPtr`, is a function pointer, which is purely C/C++, and represents the C/C++ implementation of the `native` method on the Java side, that is, the jump pointer mentioned above. Knowing all this, we still can't write code, because, we still have the core of JNI left unsaid, that is, the type system.
-# JNI's type system
+### JNI's type system
 The type system of JNI is messy due to the two language systems involved, Java and C/C++, but it is not untraceable. The first thing that needs to be made clear is that both ends have their own type systems, `boolean`, `int`, `String` in Java, `bool`, `int`, `string` and so on in C/C++, which unfortunately don't correspond one to the other. In other words, C/C++ does not recognize Java's types. Since the types are not compatible, how can we call them. This is the problem that JNI is trying to deal with.
-## JNI type mapping
+#### JNI type mapping
 In order to solve the problem of type incompatibility, JNI introduces its own type system, which defines types compatible with C/C++, and also specifies the type conversion relationship from Java to C/C++. Here's a table showing how the conversion works
 
 | Java Types | C/C++ Types | Description |
@@ -144,7 +142,7 @@ jobject (all Java objects)
 ```
 The two tables together are the type conversion relationship from the Java side to C/C++. That is to say, when we declare `native` code in Java, the correspondence between `native` function parameters and return values is also the correspondence between C/C++ calling Java code parameter passing. But after all, the two systems are still separated, the type system only defines the compatibility way, and does not define the conversion way, the two sides of the parameter still can not recognize each other, so the JNI and a type signature, want to deal with the type of automatic conversion problem.
 
-## Type signatures for JNI
+#### Type signatures for JNI
 Type signatures are similar to class type mappings in that there are correspondences, so let's look at a correspondence table.
 | Type Signatures | Java Types |
 | --- | --- | 
@@ -179,7 +177,7 @@ This example is a method type, which corresponds to the last item in the table, 
 4. Finally, the return value, which is of type `long`, is signed `J`.
 
 Combining this information according to the signature form is `(ILjava/lang/String;[Z)J`, ***Note that there is no separator between the type signature and the signature, nor is it needed; the type signatures are tightly packed***.
-# Look again at dynamic registration
+### Look again at dynamic registration
 With JNI's type system support, go back and move on to the dynamic registration example and let's go on to refine it.
 1. Get `JNIEnv` object with JVM object, i.e. `auto status=vm->AttachCurrentThread(&jniEnv, nullptr);`
 2. Use the `JNIEnv` object obtained in step 1 to obtain the `jclass` object, i.e. `auto cls=jniEnv->FindClass("me/hongui/demo/Test");`
@@ -204,10 +202,10 @@ extern "C" jint JNI_OnLoad(JavaVM *vm, void *reserved){
 }
 ```
 
-# Using data in JNI
+### Using data in JNI
 After all the previous grating, it's really only about one thing - how to find it. Although complicated, but the good thing is that there is a trace, the big deal is to run the run. The following to talk about this problem is much more tricky, need a little patience and careful. This part can also be divided into two smaller problems - *** accessing the data of a known object and creating a new object. It is important to mention that the access and creation here are for Java programs, that is, the object exists on the heap of the JVM virtual machine, and our operations are based on the operation of the heap object.*** In C/C++ code, the only way to manipulate heap objects is through the methods provided by `JNIenv`. So, this part is actually an explanation of the application of `JNIenv` methods.
 
-## Java object access
+#### Java object access
 When we say accessing an object in the object-oriented world, we usually mean two things; accessing the object's properties, and calling the object's methods. These operations are well implemented in the Java world, but not in the C/C++ world. In the section on JNI's type system, we also learned that complex objects in Java correspond to the class `jobject` in C/C++, so obviously, no matter how awesome that object is in the Java world, it's treated the same in C/C++. In order to realize C/C++ access to Java's complex objects, combined with the way of accessing objects, `JNIEnv` provides two major classes of methods, one corresponding to properties and one corresponding to methods. With `JNIEnv`, C/C++ can realize the goal of accessing objects. There is also a more uniform procedure for using them:
 1. Prepare the corresponding id (fieldid or methodid) according to the content to be accessed.
 2. Identification of the objects to be accessed and the data to be invoked
@@ -246,10 +244,10 @@ From the analysis and examples above, patience and attentiveness are mainly refl
 2. Be careful with static and non-static modifiers of properties or methods, as static ones usually require the use of a method with the `static` keyword, while normal ones do not. For example, `GetStaticIntField` corresponds to getting the value of a static integer attribute, while `GetIntField` gets the value of an integer attribute of a normal object.
 3. Attribute-related set methods are of the form `SetXField`, where `X` stands for the specific type, corresponding to the type in the previous type system, or `Object` in the case of complex objects, as in `SetObjectField`. Accessing a property is simply a matter of replacing the prefix `Set` with `Get`. For static properties, a fixed `Static` is added between `Set` and `X`, i.e. `SetStaticIntField`.
 4. Method calls are prefixed with `Call` followed by the type of return value, in the form of `CallXMethod`. Here `X` stands for the return value. For example, `CallVoidMethod` calls a method of an object whose return value is of type `void`. The equivalent static method is `Static` between `Call` and `X`, as in `CallStaticVoidMethod`.
-## Passing data to the Java world
+#### Passing data to the Java world
 Passing data to the Java world requires even more patience. Because we need to keep constructing objects, combining them, and setting properties. And each of these is a form of access to the Java object above.
 
-### Constructing Java objects
+##### Constructing Java objects
 C/C++ constructs Java objects and calls methods similarly. However, there are still a lot of details worth paying attention to. According to the previous method, we construct the object, first we need to know the id of the constructor method, and to get the id, we need to get `jclass`, the name and signature of the constructor method. We know that in the Java world, the constructor method has the same name as the class, but this is not the case in C/C++, it has a special name - `<init>`, note that `<>` can't be missing here. ***That means that no matter what the class is called, the name of its constructor is `<init>`.*** And the key point of the function signature is the return value, the return value of the constructor method is `void` which corresponds to the signature type `V`.
 
 Picking up on the previous example of the `Person` class, how do you construct a `Person` object.
@@ -270,12 +268,12 @@ env->SetObjectField(p,name,nameValue);
 return p
 ```
 The above example has an interesting point, in fact the example creates two Java objects, one is `Person` object and the other is `String` object. Since the probability of a `String` exit is too high in programming, JNI provides this easy way. Also special is the creation of array objects. And because the type of the array is uncertain, there are multiple versions of the creation method, such as `NewIntArray` for creating an integer array. The method signatures are also quite regular, all in the form of `NewX Array`, where `X` stands for the type of the array, and all of these methods take one parameter, the size of the array. Since we are mentioning arrays, the methods for setting arrays have to be mentioned. There are methods for setting the value of an array element, in the form of `SetXArrayRegion`, such as `SetIntArrayRegion` which sets the value of an integer array element. Unlike the Java world, these methods support setting multiple values at the same time. The signature of an integer array looks like this - `void SetIntArrayRegion(jintArray array,jsize start, jsize len,const jint* buf)` The second parameter represents the start index of the set value, the third parameter is the number, and the fourth argument is a pointer to the true value. The rest of the types are similar.
-## Take data access a step further
+#### Take data access a step further
 There are times when we don't access an object when we call a `native` method, but sometime in the future. This is well realized in the Java world, where there is always a suitable class to hold the object reference passed in during this call, and it can be used directly at a later time. Is it the same in the `native` world? It's the same in terms of usage flow, but it's very different in terms of implementation.
 
 The Java world has GC, which means that after passing some temporary object `X` to some object `Y`, the life cycle of `X` is transferred to `Y`, and `X` is not destroyed at the end of the call, but is recycled together with `Y` when `Y` is recycled. This approach is fine in the pure Java world, but when we pass this temporary object `X` to the `native` world and try to get it to work as it does in the Java world, the application crashes, reporting the error `JNI DETECTED ERROR IN APPLICATION: native code passing in JNI DETECTED ERROR IN APPLICATION: native code passing in reference to invalid stack indirect reference table or invalid reference: 0xxxxx`. Why does the same operation work in Java but not in `native`? The root of the problem is Java's GC, which can determine whether an object needs to be marked as garbage through various garbage detection algorithms. In the `native` world, there is no GC, so in order not to cause memory leaks, you have to adopt the strictest policy, **where the `native` method is called by default is where the Java object is used**. So at the end of the scope of the `native` method call, the temporary object is marked as garbage by the GC, and if you want to use it again later, it may already be recycled. Luckily, the powerful `JNIEnv` class also provides methods for us to change this default strategy - `NewGlobalRef`. All an object needs to do is tell the JVM that it wants to live a little longer in this way, and the JVM will not mark it as garbage when performing garbage detection, and the object will live on. In until `DeleteGlobalRef` is called.***Here `NewGlobalRef`, `DeleteGlobalRef` are one-to-one correspondence, and it is better to call `DeleteGlobalRef` to free memory when the object is no longer needed to avoid memory leaks***.
 
-# Summary
+### Summary
 ***JNI development will involve knowledge of Java and C/C++ development, in the C/C++ implementation of JNI, the basic idea is to use C/C++ syntax to write Java logic, that is, everything for the service of Java.JNI development process, the main two issues to be dealt with, function registration and data access.*** 
 
 Function registration is recommended to use dynamic registration, use `RegisterNatives` of `JNIEnv` to register the function in `JNI_OnLoad` function, pay attention to keep the consistency of Java's `native` methods and type signatures, and don't forget to prefix the prefix `L`, suffix `;` for composite types, and replace `. ` for `/`.

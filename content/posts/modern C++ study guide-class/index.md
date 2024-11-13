@@ -6,7 +6,7 @@ date: 2022-08-05T22:56:26+08:00
 lastmod: 2022-08-05T22:56:26+08:00
 publishDate: 2022-08-05T22:56:26+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - 
@@ -15,7 +15,6 @@ tags:
 
 toc: true
 draft: true
-url: post/现代C++学习指南 具体类.html
 ---
 
 > 类作为C++中重要的概念之一，有着众多的特性，也是最迷人的部分！

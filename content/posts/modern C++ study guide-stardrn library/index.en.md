@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2022-07-20T22:15:05+08:00
 publishDate: 2022-07-20T22:15:05+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - C++
@@ -16,7 +16,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Modern C++ Study Guide - Standard Library.html
 ---
 
 > In [the previous chapter](https://www.yuque.com/docs/share/adb5b1e4-f3c6-46fd-ba4b-4dabce9b4f2a?# Modern C++ Study Guide - The Type System) we explored the type system of C++ and proposed a low-to-high and again high-to-low study idea. This article is a study guide from high to low, and hopefully provides a new perspective.

@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2022-03-06T11:30:40+08:00
 publishDate: 2022-03-06T11:30:40+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - NDK
@@ -18,15 +18,14 @@ tags:
 
 toc: true
 draft: false
-url: post/Introduction to Android NDK-basic concepts.html
 ---
 
 Sometimes it is necessary to use libraries written in C/C++ for security, performance, and code sharing considerations during the development. Although with the support of modern tool chains, the difficulty of this work has been greatly reduced, after all, everything is difficult at the beginning, and beginners often still encounter many unpredictable problems. This article is a simple guide written based on this background. I hope it will be helpful to readers who have just started writing C/C++ libraries. At the same time, in order to reduce cognitive gaps as much as possible, this article will try to start with the simplest function and gradually add tool chains until the final function is achieved, truly knowing what is happening and why.
 
-# Target
+### Target
 The goal of this article is very simple, which is to call C/C++ functions in Android applications - receiving two integer values ​​and returning the value after adding the two. This function is tentatively named `plus`.
 
-# Begin with the C++ source file
+### Begin with the C++ source file
 In order to start from where we are most familiar, we'll start with the original C++ source files without the use of sophisticated tools.
 
 Open any text editor you like, VS Code, Notpad++, Notepad, create a new text file and save it as `math.cpp`. Next, you can write code in this file.
@@ -44,7 +43,7 @@ Out work is done, isn't it simple.
 
 But just having the source file is not enough, because this is just for humans, machines can't read it. So we need the first tool - a compiler. A compiler helps us to convert what is human-readable into something that is machine-readable.
 
-# The compiler
+### The compiler
 The compiler is a complex project, but the two main functions are as follows
 1. to understand the content of the source file (human-readable) - to check for syntax errors in the source file
 2. to understand the content of the binary (machine-readable) - to generate binary machine code.
@@ -53,7 +52,7 @@ Around these two main functions, the compiler needs to complete a lot of work, e
 
 Cross-compilation is the technique of generating code on one platform into executable objects on another. The biggest difference between cross-compilation and normal compilation is in linking. Because the general link directly to the system library to find the appropriate library files, while cross-compilation can not, because the current platform is not the final platform to run the code. So cross-compile also need to have the common libraries of the target platform. Of course, Google has prepared all these for us, called NDK.
 
-# NDK
+### NDK
 
 NDK full name is Native Development Kit, there are many tools, compilers, linkers, standard libraries, shared libraries. These are all essential parts of cross-compilation. In order to understand the convenience, we first take a look at its file structure. Take the version on my machine as an example - `/home/Andy/Android/Sdk/ndk/21.4.7075529` (the default location on Windows is `c:\Users\xxx\AppData\Local\Android\\). Sdk\`). The NDK is stored in the Sdk directory, named `ndk`, and the version number is used as the root directory for that version, as in the example, the version of NDK I installed is `21.4.7075529`. The example is also the value of the `ANDROID_NDK` environment variable. In other words, before determining the environment variable, we need to determine the version of the NDK to use, and the path value is taken to the version number directory.
 
@@ -73,7 +72,7 @@ Knowing where it is stored, we next need to recognize two important directories
 As you can see, for Android, different hosts, different instruction sets, different Android versions, all correspond to a compiler.
 After learning so much, it's finally time to get excited about the human nature. Next, let's compile the C++ file in front of us.
 
-# Compile
+### Compile
 
 Looking at the parameters via `aarch64-linux-android21-clang++ --help`, you'll see that it has a lot of parameters and options, and now we just want to verify that our C++ source file doesn't have any syntax errors, so we'll just ignore all that complexity, and just a `aarch64-linux-android21- clang++ -c math.cpp`.
 
@@ -81,16 +80,16 @@ After the command is executed, if all goes well, a `math.o` object file will be 
 
 But before that, a quick interruption. Often our projects contain many source files, referencing some third-party libraries, and each time we compile them manually, linking is obviously inefficient and error-prone. Nowadays, when tools are mature, we should try to use mature tools and focus on our business logic, `CMake` is one such tool.
 
-# CMake
+### CMake
 CMake is a cross-platform project builder. How to understand it? When writing C++ code, sometimes you need to refer to file headers in other directories, but in the compilation stage, the compiler doesn't know where to look for the headers, so you need a configuration to tell the compiler where to look for the headers. Furthermore, source code distributed in different directories needs to be packaged into different libraries according to certain needs. Or, if the project references third-party libraries, you need to tell the linker where to look for the libraries during the linking phase, and all of these are things that need to be configured.
 
 Different systems and different IDEs have different support for these configurations, such as Visual Studio on Windows, which needs to be configured in the project's properties. When developers use the same tools, the problem is not so big. But once involved in the case of multi-platform, multi-IDE, collaborative development will spend a lot of time in the configuration of the CMake is to solve these problems came into being.
 
 CMake configuration information is written in a file called `CMakeLists.txt`. As I mentioned earlier, header file references, source code dependencies, library dependencies, etc., only need to be written once in `CmakeLists.txt`, and can be used seamlessly on all major IDEs on Windows, MacOS, and Linux platforms. For example, I created a CMake project on Visual Studio for Windows, configured the dependencies, and passed it to a coworker. When my colleague develops on MacOS, he can immediately finish compiling, packaging, testing, etc. without any modification. This is the power of CMake cross-platform - simple, efficient, flexible.
 
-# Manage project with CMake
+### Manage project with CMake
 
-## Create a CMake project
+#### Create a CMake project
 We already have `math.cpp` and CMake above, so let's combine them now.
 
 How do we create a CMake project? There are three steps:
@@ -121,7 +120,7 @@ add_library(${PROJECT_NAME} SHARED math.cpp)
 
 After these three steps, the CMake project is built. Let's try compiling the project with CMake in the next step.
 
-## Compile the CMake project
+#### Compile the CMake project
 
 Before executing the real compilation, CMake has a preparation phase, in which CMake collects the necessary information and then generates a project that meets the conditions before it can execute the compilation.
 
@@ -148,9 +147,9 @@ After the command is executed, you will find the VS project in the `build` direc
 
 From the above process, CMake's workflow is not complicated. But we are using the default configuration, which means that the final generated library can only be used on the compiled platform. To use CMake to compile Android libraries, we need to manually tell CMake some configurations when generating the project, instead of letting CMake guess.
 
-# Cross-compilation of CMake
+### Cross-compilation of CMake
 
-## Where do the configuration parameters come from?
+#### Where do the configuration parameters come from?
 
 Although we do not know what is the minimum configuration to complete the cross-compilation, but we can guess.
 
@@ -160,7 +159,7 @@ Secondly, Android's system version and architecture is also essential, after all
 
 Can you think of any other parameter, I can't seem to think of any. However, the good news is that Google has done it for us, and that is to use `CMAKE--TOOLCHAIIIN_FILE` directly. This option is provided by CMake, just set the configuration file path to its value, CMake will find the target file through this path, and use the configuration inside the target file instead of its own guessing parameters. The configuration file is `build/camke`, one of the two important folders mentioned earlier, and our configuration file is `android.toolchain.cmake` under that folder.
 
-## The CMake of Google
+#### The CMake of Google
 
 `android.toolchain.cmake` plays the role of a wrapper that will work together to configure CMake using the parameters provided to it, and the default configuration. In fact, this file is a good source for learning about CMake, and you can learn a lot of CMake tricks. Now, let's not learn CMake-related first, let's see what parameters we have available. In the beginning of the file, Google will be configurable parameters are listed out
 
@@ -183,7 +182,7 @@ Let's focus on the most critical `ANDROID_ABI` and `ANDROID_PLATFORM`. The first
 
 So how do we know which parameter can take which values? There's an easy way: first identify the parameter you want to see in the header of the file, then search globally and look at the `set` and `if` related statements to determine the parameter forms it supports.
 
-## Complete cross-compilation using configuration files
+#### Complete cross-compilation using configuration files
 
 With that out of the way, let's go back to the original example. Now we have `CMakelists.txt`, we have `math.cpp`, and we have found the configuration file `android.toolchin.cmake` for Android. So how do you combine the three, which brings us to CMake's parameter configuration.
 
@@ -232,11 +231,11 @@ cmake -GNinja -DCMAKE_TOOLCHAIN_FILE=/home/Andy/Android/Sdk/ndk/21.4.7075529/bui
 ```
 This gives us the idea that if some third-party libraries don't provide a compilation guide, but are managed by CMake, we can just apply the above formula to compile the third-party libraries.
 
-# JNI
+### JNI
 
 With the help of CMake, we have got the `libmath.so` dynamic library, but this library still can't be used directly by Android apps, because Android apps are developed in Java (Kotlin) language, and they are all JVM languages, the code is running on the JVM. To use the library, you also need to find a way to get the library loaded into the JVM and then you can access it. It happens that the JVM really does have this capability, it is JNI.
 
-## JNI basic concepts
+#### JNI basic concepts
 
 JNI can provide bi-directional access from Java to C/C++, that is, you can access C/C++ methods or data in Java code, and vice versa, the same support, which is the process of the JVM can not be ignored. So to understand JNI technology, we need to think in terms of JVM.
 
@@ -253,7 +252,7 @@ For C/C++, there is no package name and class name, so can we determine the uniq
 
 There are two ways to add qualifications, one is simple and crude, directly to the package name class name as part of the function name, so that the JVM does not have to look at other things, directly crude package name, class name, function name and parameters of these correspond to determine the corresponding method on the other end. This method is called static registration. In fact, it's very similar to broadcasting in Android: static registration for broadcasting is just brute-force writing in the `AndroidManifest` file, so you don't have to configure it in the code, and it takes effect as soon as it's written. In contrast to static registration, there must be a dynamic registration method. Dynamic registration is writing code that tells the JVM what functions correspond to each other, rather than having it look them up when the function is called. Obviously the advantage of this approach is that the call is a little faster, after all, we only need to register once, you can in subsequent calls directly access to the counterpart, no longer need to find the operation. However, the same and Android broadcast dynamic registration, dynamic registration is much more cumbersome, and dynamic registration should also pay attention to grasp the timing of registration, otherwise it is easy to cause the call to fail. We continue to `libmath.so` as an example.
 
-## Use local library on the Java
+#### Use local library on the Java
 
 Accessing C/C++ functions on the Java side is simple, in three steps:
 
@@ -309,9 +308,9 @@ public class MainActivity extends AppCompatActivity {
 }
 ```
 
-## Introducing JNI on the C/C++ side
+#### Introducing JNI on the C/C++ side
 JNI is actually for C/C++ is a layer of adaptation layer, in this layer mainly do the work of function conversion, do not do the implementation of specific functions, so, in general, we will create a new source file, used to deal with the JNI layer of the problem, and the JNI layer of the most important problem is, of course, the method of registration problems mentioned earlier.
-### Static registration
+##### Static registration
 The basic idea of static registration is to write a C/C++ function signature corresponding to an existing Java `native` method, specifically in four steps.
 
 1. Start by writing the exact same function signature as the Java `native` function
@@ -362,7 +361,7 @@ You can see that we only change the last line of the filename, because `CMakeLis
 
 Now use CMake to recompile and generate dynamic libraries, and this time Java will run directly without errors.
 
-### Dynamic registration
+##### Dynamic registration
 As mentioned earlier dynamic registration needs to pay attention to the timing of registration, so what is considered a good time? In the previous section of Java's use of local libraries, we know that in order to use the library, you must first be loaded, loaded after the success of the JNI methods can be called. Then dynamic registration must occur after loading, before use. JNI is very humane to think of this, in the library after the completion of loading will immediately call `jint JNI_OnLoad (JavaVM *vm, void *reserved)` function, this method also provides a key `JavaVM` object, it is simply the best entry point to the dynamic registration of the It's simply the best entry point for dynamic registration. Having determined the timing of the registration, let's now do it in practice. ***Note: Dynamic registration and static registration are both ways of implementing JNI functions on the C/C++ side, and there is generally only one registration method for the same function.*** So, the next steps are parallel to static registration, not sequential.
 
 Dynamic registration in six steps
@@ -446,7 +445,7 @@ extern "C" jint jni_plus(
 ```
 Well, the implementation of dynamic registration is now complete, and after CMake compiles it, you'll see that the result is exactly the same as static registration. So it's up to you to decide what you want and how you want to do it. When you need to call the `native` method a lot, I think dynamic registration is an advantage, but if you call it very rarely, you can just use static registration, and the lookup consumption is completely negligible.
 
-# One more thing
+### One more thing
 I mentioned earlier that CMake is a master at managing C/C++ projects, but for Android development, Gradle is the way to go. Google realizes this too, so the gradle plugin provides a silky smooth configuration for CMake and Gradle to work seamlessly together directly. Under the `android` build block, you can directly configure the path and version information of `CMakeLists.txt`.
 ```groovy
 externalNativeBuild {
@@ -482,7 +481,7 @@ Here, `cppFlags` specifies C++-related arguments, and there's a corresponding `c
 
 With these configurations, Android Studio development NDK is exactly like the development of Java, there are intelligent prompts, can be compiled instantly, run instantly, enjoy the silky smooth.
 
-# Sumary
+### Sumary
 NDK development should actually be divided into two parts, C++ development and JNI development.
 C++ development is exactly the same as C++ development on PC, you can use standard libraries, you can refer to third-party libraries, with the expansion of the project scale, CMake was introduced to manage the project, which has obvious advantages for cross-platform projects, and can also be seamlessly integrated into Gradle.
 JNI development is more concerned about the correspondence between the C/C++ side and the Java side, each `native` method on the Java side should have a corresponding C/C++ function to correspond to it, JNI provides

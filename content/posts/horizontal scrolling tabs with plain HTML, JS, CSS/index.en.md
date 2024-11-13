@@ -16,7 +16,6 @@ tags:
 
 toc: true
 draft: false
-url: post/horizontal scrolling tabs with plain HTML, JS, CSS.html
 ---
 ### Preface
 Not long ago, in one of my projects, I need to show a horizontal scrolling tab, which supports horizontal mouse drag and click to switch. In the process of realization, I found that this small feature needs to use the front-end of the three carriages at the same time, but the realization of the difficulty is not high, and the final result is not bad, is a rare beginner project, so the idea of writing this article was born, I hope that beginners can help. At the same time, in order to avoid beginners to learn the framework, I intend to use a purely native way to realize it.

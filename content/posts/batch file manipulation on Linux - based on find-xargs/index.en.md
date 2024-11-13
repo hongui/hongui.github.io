@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Linux batch file manipulation - based on find,xargs.html
 ---
 
 ### Preface

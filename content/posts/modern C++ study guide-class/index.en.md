@@ -15,7 +15,6 @@ tags:
 
 toc: true
 draft: true
-url: post/Modern C++ study guide--Class.html
 ---
 
 > Classes, one of the important concepts in C++, have numerous features and are the most fascinating part!

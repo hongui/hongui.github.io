@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Kotlin协程-从理论到实战.html
 ---
 
 > 上一篇文章从理论上对Kotlin协程进行了部分说明，本文将在上一篇的基础上，从实战出发，继续协程之旅。

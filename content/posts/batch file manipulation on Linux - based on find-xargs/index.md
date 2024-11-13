@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2022-02-18T21:19:39+08:00
 publishDate:  2022-02-18T21:19:39+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - Linux
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Linux批量文件操作——基于find,xargs.html
 ---
 
 ### 前言

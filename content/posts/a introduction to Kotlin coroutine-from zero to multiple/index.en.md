@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2021-03-30T19:10:30+08:00
 publishDate: 2021-03-30T19:10:30+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - Coroutine
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/A introduction to Kotlin cotoutine-from zero to multiple.html
 ---
 
 > In the last post, I introduced the creation, use, and collaboration of Kotlin coroutines. This post will introduce more usage scenarios and continue to take you into the world of coroutines.

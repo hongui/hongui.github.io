@@ -4,7 +4,7 @@ description: "Modern C++ Study Guide-roadmap"
 isCJKLanguage: false
 lastmod: 2022-06-25T08:51:01+08:00
 publishDate: 2022-06-25T08:51:01+08:00 
-author: hongui
+author: "hongui"
 categories:
  - C++
 tags:
@@ -12,7 +12,6 @@ tags:
  - C++ 
 toc: true
 draft: false
-url: post/Modern C++ Study Guide-roadmap.html
 ---
 C++ is a forty-year-old language that has gone through four major version upgrades (Birth, 98, 11, 17(20), 14 counts as a minor upgrade). Each upgrade was a trade-off between many problems and solutions. Understanding this history can better help us to clarify the development of the language. So next I will borrow its development history, talk about my understanding of it, and finally give a guide to what I think is a more reasonable learning route.
 

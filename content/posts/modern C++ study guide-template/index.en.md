@@ -6,7 +6,7 @@ date: 2022-10-31T21:33:38+08:00
 lastmod: 2022-10-31T21:33:38+08:00
 publishDate: 2022-10-31T21:33:38+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - C++
@@ -16,7 +16,6 @@ tags:
 
 toc: true
 draft: false
-url: post/Modern C++ study guide-template.html
 ---
 
 > Template have always had a pivotal role as an important feature of C++, and are a great tool for writing highly abstract code.

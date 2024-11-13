@@ -6,7 +6,7 @@ isCJKLanguage: false
 lastmod: 2021-03-27T19:02:30+08:00
 publishDate: 2021-03-27T19:02:30+08:00
 
-author: hongui
+author: "hongui"
 
 categories:
  - Coroutine
@@ -17,7 +17,6 @@ tags:
 
 toc: true
 draft: false
-url: post/A introduction to Kotlin coroutine-from theory to practice.html
 ---
 
 > The previous article partially explained Kotlin coroutines from a theoretical point of view, and this article will continue the journey of coroutines from a practical point of view, based on the previous article.
