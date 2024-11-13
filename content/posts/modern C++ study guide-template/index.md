@@ -15,7 +15,6 @@ tags:
 
 toc: true
 draft: false
-url: post/现代C++学习指南-模板.html
 ---
 
 > 模板作为C++重要的特性，一直有着举足轻重的地位，是编写高度抽象代码的利器。
