@@ -16,7 +16,7 @@ tags:
 
 toc: true
 draft: false
-url: post/Modern C++ study guide-template.html
+url: post/Modern-C++-study-guide-template.html
 ---
 
 > Template have always had a pivotal role as an important feature of C++, and are a great tool for writing highly abstract code.
